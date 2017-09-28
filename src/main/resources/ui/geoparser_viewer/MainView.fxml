@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane minHeight="800.0" minWidth="1200.0"
+	xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="de.unihd.dbs.geoparser.viewer.controller.MainViewController">
+	<top>
+        <fx:include fx:id="geoparsingView" source="GeoparsingView.fxml" />
+	</top>
+
+	<center>
+		<fx:include fx:id="resultsView" source="ResultsView.fxml" />
+	</center>
+</BorderPane>

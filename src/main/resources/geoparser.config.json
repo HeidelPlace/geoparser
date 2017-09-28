@@ -1,0 +1,43 @@
+{
+  "dbConnectionConfigurations": {
+    "local.geonames": {
+      "dbConnectionData": {
+        "dbName": "geonames",
+        "host": "localhost",
+        "port": 5432,
+        "userName": "postgres",
+        "password": ["a", "d", "m", "i", "n"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    },
+    "local.gazetteer": {
+      "dbConnectionData": {
+        "dbName": "gazetteer",
+        "host": "localhost",
+        "port": 5432,
+        "userName": "postgres",
+        "password": ["a", "d", "m", "i", "n"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    }
+  },
+  "configurationStrings": {
+    "geoparser.config.version": "0.1",
+    "gazetteer.persistence_unit.name": "productive_gazetteer",
+    "gazetteer.persistence_unit.db_source": "local.gazetteer",
+    "geonames.source": "local.geonames",
+    "opennlp.ner.model.path": "data/opennlp_models/en-ner-location.bin",
+    "opennlp.tokenizer.model.path": "data/opennlp_models/en-token.bin",
+    "opennlp.sentence_detector.model.path": "data/opennlp_models/en-sent.bin",
+    "stanford.ner.model.path": "data/stanford_ner_models/english.all.3class.distsim.crf.ser.gz",
+    "stanford.ner.prop.path": "data/stanford_ner_models/english.all.3class.distsim.prop",
+    "stanford.pos.model.path": "data/stanford_ner_models/english-left3words-distsim.tagger",
+    "stopwords.paths": "data/stopwords/en-stopwords.txt,data/stopwords/de-stopwords.txt"
+  }
+}
