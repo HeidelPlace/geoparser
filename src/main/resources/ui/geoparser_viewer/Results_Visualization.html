@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html
+	style="height: 100%; width: 100%; margin: 0; padding: 0; topmargin: 0; leftmargin: 0;">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<style>
+
+#taggedNEs {
+	border: 1px solid #e3e3e3;
+	border-radius: 5px;
+	padding: 4px;
+	line-height: 1.5em;
+}
+
+.taggedWord {
+	cursor: pointer;
+	border-radius: 2px;
+	margin: 0.1em 0.2em 0.1em 0.2em;
+	padding: 0.1em 0.2em 0.1em 0.2em;
+}
+
+.location {
+	background-color: #CD594A;
+}
+
+.person {
+	background-color: #EBC944;
+}
+
+.organization {
+	background-color: #1496BB;
+}
+
+.misk {
+    background-color: #C9C9C9;
+}
+
+.other {
+	background-color: #A9A9A9;
+}
+
+.none {
+	cursor: default;
+}
+
+.selected {
+    border: 3px solid #333;
+}
+</style>
+<script type="text/javascript">
+	function addNE(text, type, id) {
+		var span = document.createElement('span');
+		span.innerHTML = text;
+		span.id = id;
+		span.className = "taggedWord";
+		span.className += " " + type;
+		if (type != 'none') {
+			span.onclick = function() {
+				setToSelected(this);
+				alert(this.id);
+			}
+		}
+
+		var taggedNEs = document.getElementById("taggedNEs");
+		taggedNEs.appendChild(span);
+	}
+	
+	function selectNE(id) {
+		setToSelected(document.getElementById(id));
+	}
+
+	function setToSelected(span) {
+		var elements = document.getElementsByClassName('selected');
+		for (var i = 0; i < elements.length; i++) {
+			elements[i].classList.remove('selected');
+		}
+
+		span.className += ' selected';
+	}
+
+	function clearNEs() {
+		var taggedNEs = document.getElementById("taggedNEs");
+		while (taggedNEs.firstChild) {
+			taggedNEs.removeChild(taggedNEs.firstChild);
+		}
+	}
+</script>
+</head>
+<body>
+	<div id="taggedNEs"></div>
+<!-- 	<button onclick="addNE('some place', 'location', 0)" value="">Add
+		Location</button>
+	<button onclick="addNE('some organization', 'organization', 1)"
+		value="">Add Organization</button>
+	<button onclick="addNE('some person', 'person', 2)" value="">Add
+		Person</button>
+	<button onclick="addNE('some other', 'other', 3)" value="">Add
+		Other</button>
+	<button onclick="addNE('some non-NE', 'none', 4)" value="">Add
+		Non-NE</button>
+	<button onclick="clearNEs()" value="">Clear</button> -->
+</body>
+</html>

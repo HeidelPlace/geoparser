@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.unihd.dbs.geoparser.gazetteer.viewer.controller.MainViewController">
+	<top>
+	<fx:include fx:id="searchView" source="SearchView.fxml" />
+	</top>
+	<center>
+        <fx:include fx:id="detailsView" source="DetailsView.fxml" />
+    </center>
+   <left>
+      <fx:include fx:id="overviewView" source="OverviewView.fxml" />
+   </left>
+</BorderPane>

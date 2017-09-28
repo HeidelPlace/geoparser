@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+
+<configuration>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5p - %c{0}\t - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./log/geoparser_global.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>./log/geoparser_global.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-dd-MM HH:mm:ss} %-5p - %c{0}\t - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="GAZETTEER_INSTALLER"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./log/gazetteer_installer.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>./log/gazetteer_installer.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>3</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-dd-MM HH:mm:ss} %-5p - %c{0}\t - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="GAZETTEER_VIEWER"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./log/gazetteer_viewer.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>./log/gazetteer_viewer.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>3</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-dd-MM HH:mm:ss} %-5p - %c{0}\t - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="GEOPARSER_VIEWER"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./log/geoparser_viewer.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>./log/geoparser_viewer.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>3</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-dd-MM HH:mm:ss} %-5p - %c{0}\t - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- additivity=false ensures analytics data only goes to the analytics 
+		log -->
+	<logger level="debug" name="de.unihd.dbs.geoparser.gazetteer.benchmark"
+		additivity="false">
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger level="debug" name="de.unihd.dbs.geoparser.gazetteer.importers"
+		additivity="false">
+		<appender-ref ref="GAZETTEER_INSTALLER" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger level="debug" name="de.unihd.dbs.geoparser.viewer"
+		additivity="false">
+		<appender-ref ref="GEOPARSER_VIEWER" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger level="debug" name="de.unihd.dbs.geoparser.gazetteer.viewer"
+		additivity="false">
+		<appender-ref ref="GAZETTEER_VIEWER" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.hibernate.type" level="INFO" />
+	<logger name="org.hibernate" level="INFO" />
+
+	<root level="info">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
+	</root>
+
+	<!-- <root value="debug"> <appender-ref ref="STDOUT" /> </root> -->
+</configuration>

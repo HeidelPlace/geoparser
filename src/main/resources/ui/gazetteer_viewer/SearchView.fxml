@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<?import org.controlsfx.control.CheckComboBox?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="277.0" prefWidth="908.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.unihd.dbs.geoparser.gazetteer.viewer.controller.SearchViewController">
+	<children>
+      <VBox prefHeight="251.0" prefWidth="886.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="7.0" prefWidth="898.0">
+               <children>
+            		<CheckBox fx:id="filterNameCheckBox" mnemonicParsing="false" prefHeight="21.0" prefWidth="130.0" selected="true" text="By Name:" />
+            		<HBox fx:id="filterNameHBox" alignment="CENTER_LEFT" prefHeight="31.0" prefWidth="758.0" spacing="10.0">
+            			<children>
+            				<TextField fx:id="filterNameField" prefHeight="31.0" prefWidth="325.0" />
+            				<CheckBox fx:id="ignoreCaseCheckBox" mnemonicParsing="false" prefHeight="21.0" prefWidth="114.0" selected="true" text="Ignore Case" />
+                        <Label prefHeight="21.0" prefWidth="96.0" text="Match-Mode:" />
+                        <ComboBox fx:id="matchModeComboBox" prefHeight="31.0" prefWidth="198.0" />
+            			</children>
+            			<opaqueInsets>
+            				<Insets />
+            			</opaqueInsets>
+            		</HBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="906.0">
+               <children>
+            		<CheckBox fx:id="filterTypeCheckBox" mnemonicParsing="false" prefHeight="21.0" prefWidth="130.0" text="By Type:" />
+                  <HBox fx:id="filterTypeHBox" alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="744.0" spacing="10.0">
+                     <children>
+                        <Label prefHeight="21.0" prefWidth="91.0" text="Place Type:" />
+   <!--                      <ComboBox fx:id="placeTypeCheckComboBox" prefHeight="31.0" prefWidth="223.0" />  -->
+                        <CheckComboBox fx:id="placeTypeCheckComboBox" prefHeight="31.0" prefWidth="223.0" />
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="906.0">
+               <children>
+            		<CheckBox fx:id="filterPropertyCheckBox" mnemonicParsing="false" prefHeight="21.0" prefWidth="130.0" text="By Property:" />
+                  <VBox alignment="CENTER_LEFT" prefHeight="31.0" prefWidth="760.0" spacing="10.0">
+                     <children>
+                        <HBox fx:id="filterPropertyHBox" alignment="CENTER_LEFT" prefHeight="31.0" prefWidth="758.0" spacing="10.0">
+                           <children>
+                              <Label text="Propery Type:" />
+                              <ComboBox fx:id="propertyTypeComboBox" prefHeight="31.0" prefWidth="223.0" />
+                              <Label text="Values / Range:" />
+                              <TextField fx:id="propertyValueTextField" prefHeight="31.0" prefWidth="312.0" />
+                           </children>
+                        </HBox>
+                        <Label prefHeight="21.0" prefWidth="769.0" text="(multiple values allowed by comma separation and range-check possible by input format &quot;[%f, %f]&quot;)" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="9.0" prefWidth="886.0">
+               <children>
+                  <CheckBox fx:id="filterIdCheckBox" mnemonicParsing="false" prefHeight="21.0" prefWidth="130.0" text="By Ids:" />
+                  <TextField fx:id="idFilterTextField" prefHeight="31.0" prefWidth="324.0" />
+                  <Label text="(multiple Ids comma separated)">
+                     <padding>
+                        <Insets left="5.0" />
+                     </padding>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="152.0" prefWidth="886.0" spacing="20.0">
+               <children>
+            		<Label prefHeight="21.0" prefWidth="116.0" text="Max. Results:" />
+            		<TextField fx:id="maxResultsField" alignment="CENTER_RIGHT" prefHeight="31.0" prefWidth="50.0" text="50" />
+            		<Button fx:id="searchButton" defaultButton="true" mnemonicParsing="false" prefHeight="31.0" prefWidth="127.0" text="Search" />
+                  <ProgressIndicator fx:id="progressIndicator" prefHeight="31.0" prefWidth="26.0" />
+                  <Label fx:id="searchProgressLabel" prefHeight="21.0" prefWidth="517.0" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+	</children>
+</AnchorPane>

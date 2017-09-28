@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html style="height: 100%; width: 100%; margin: 0; padding: 0; topmargin: 0; leftmargin: 0;">
+<!--
+Based on http://captaincasa.blogspot.de/2014/01/javafx-and-osm-openstreetmap.html
+Based on http://wiki.openstreetmap.org/wiki/DE:Karte_in_Webseite_einbinden
+Support for drawing maps by Leaflet: http://leafletjs.com/
+Support for drawing geometries from WKT by Wicket: https://github.com/arthur-e/Wicket
+-->
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="leaflet-1.0.3.css" />
+<script type="text/javascript" src="leaflet-1.0.3.js"></script>
+<script type="text/javascript"src="wicket.js"></script>
+<script type="text/javascript" src="wicket-leaflet.js"></script>
+<!-- use for in-browser debugging -->
+<!-- <script type='text/javascript' src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script> -->
+<script type="text/javascript">
+    	
+	function javaCallback(data) {
+		alert(data);
+	}
+
+	function getZoom() {
+		return map.getZoom();
+	}
+
+	function jumpTo(lon, lat, zoom) {
+		map.setView([ lat, lon ], zoom);
+	}
+	
+	function popupMarker(pId) {
+		markers[pId].openPopup();
+	}
+	
+	function popupFootprint(fId) {
+		footprints[fId][0].openPopup();
+	}
+	
+	function addFootprint(fId, wktString, popupContentHTML) {
+		wkt = new Wkt.Wkt();
+		wkt.read(wktString);
+		obj = wkt.toObject(map.defaults);
+		footprint = [];
+		
+		// distinguish multigeometries (arrays) from objects
+		if (Wkt.isArray(obj)) {
+            for (i in obj) {
+                if (obj.hasOwnProperty(i) && !Wkt.isArray(obj[i])) {
+                	obj[i].bindPopup(popupContentHTML);
+                    obj[i].addTo(map).on('click', function() {
+                        javaCallback(fId);
+                    });
+                    footprint.push(obj[i]);
+                }
+            }
+        } else {
+        	obj.bindPopup(popupContentHTML);
+            obj.addTo(map).on('click', function() {
+                javaCallback(fId);
+            });
+            footprint.push(obj);
+        }
+		
+		if (footprint.length > 0) {
+			footprints[fId] = footprint;
+		}
+	}
+	
+	function removeFootprint(fId) {
+	   var footprint = footprints[fId];
+       while (footprint.length > 0) {
+           map.removeLayer(footprint.pop());               
+       }
+	
+	   delete footprints[fId];
+	}
+	
+    function removeAllFootprints() {
+        for (var fId in footprints) {
+        	var footprint = footprints[fId];
+        	while (footprint.length > 0) {
+        	    map.removeLayer(footprint.pop());        		
+        	}
+        }
+        footprints = new Array();
+    }
+
+	// the leaflet map instance
+	var map = null;
+	// the footprints displayed on the map
+	var footprints = new Array();
+	// for debugging
+    // var id = 0;
+
+	function drawmap() {
+		map = L.map('map');
+		var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+		var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+		var osm = new L.TileLayer(osmUrl, {
+			minZoom : 1,
+			maxZoom : 16,
+			attribution : osmAttrib
+		});
+		map.addLayer(osm);
+		// initially center on world map, fully zoomed out
+		jumpTo(0.0, 0.0, 1);
+	}
+	
+	
+</script>
+</head>
+<body onload="drawmap();" style="height: 100%; width: 100%; margin: 0; padding: 0; topmargin: 0; leftmargin: 0;">
+	<div id="map" style="height: 100%; width: 100%"></div>
+	<!-- debug console -->
+<!-- 
+    <button onClick="addFootprint(id++, 'MULTIPOLYGON(((40 40,20 45,45 30,40 40)),((20 35,10 30,10 10,30 5,45 20,20 35),(30 50,20 15,20 25,30 20,30 50)))', 'Hallo')">Add WKT Polygon</button>
+	<button onClick="addFootprint(id++, 'POINT(40 40)', 'Hallo')">Add WKT Point</button>
+	<button onClick="addFootprint(id++, 'LINESTRING(40 40,20 45,45 30,40 40)', 'Hallo')">Add WKT Linestring</button>
+	<button onClick="removeAllFootprints()">Remove all Footprints</button>
+    <button onclick="jumpTo(49.0, 46.0, 5)">JumpTo</button>
+    <button onclick="popupFootprint(id-1)">Popup Last Footprint</button> 
+-->
+</body>
+</html>

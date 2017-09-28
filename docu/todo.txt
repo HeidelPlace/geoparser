@@ -1,0 +1,146 @@
+=======================================================================================================================
+ TODO BEFORE HAND-OVER OF PROJECT:
+=======================================================================================================================
+
+=== Top priority ===
+- provide documentation for architectural details of project
+- Make project compilable as single JAR: need to check Pom.xml
+- Provide Geoparser-Configuration via Properties that are passed and support UIMA->Annotation converter
+      
+=== Lower priority ===
+
+- how should we handle the project, if it is open-sourced? who is the owner?
+  -> change groupId and package-root-naming accordingly
+- Adjust code to support CoreNLP 3.7.0
+
+=======================================================================================================================
+ TODO:
+=======================================================================================================================
+- run vacuum after insertion
+run BugFinder
+remove == null and != null checks
+- change SSHClientSessionFactory such that a counter on SSH connections is returned, closing only the last connection
+
+=======================================================================================================================
+ Design Issues:
+=======================================================================================================================
+
+- should there be multiple names per type?
+
+=======================================================================================================================
+ Improvements:
+=======================================================================================================================
+
+  
+======================================================================================================================= 
+ GeoNames Issues:
+=======================================================================================================================
+- there are countries that have an alternative country or a comma separated list of such, e.g. the case for places close
+  to Afghan and Iraque border, as well as contintes (fcode=CONT)
+- preferred is probably allowed once per language
+- the hierarchy table differs from the true relations / does not model them completely:
+    quote from the readme: "The relation toponym-adm hierarchy is not included in the file, it can instead be built from the admincodes of the toponym."
+- a child in the hierarchy may have mutitple parents! e.g. Istanbul is in Asia and Europe
+
+Sample issue for Heidelberg:
+
+    SELECT * FROM geoname
+    WHERE geonameid IN (2907911, 3220720, 6555638)
+    ==>
+    2907911;"Heidelberg";"...";49.40768;8.69079;"P";"PPLA3";"DE";"";"01";"082";"08221";"08221000";143345;;115
+    3220720;"Stadtkreis Heidelberg";"Heidelberg,Stadtkreis Heidelberg";49.41056;8.69556;"A";"ADM3";"DE";"";"01";"082";"08221";"";150335;;120
+    6555638;"Heidelberg";"Heidelberg,Stadt Heidelberg";49.4095;8.6935;"A";"ADM4";"DE";"";"01";"082";"08221";"08221000";150335;;125
+
+    SELECT g.*, g2.*
+    FROM geoname g, geoname g2, hierarchy h
+    WHERE g.geonameid = 3220720 AND parentid = g2.geonameid AND g.geonameid = childid
+    -- Stadt Heidelberg: 6555638 (ADM4) Stadtkreis Heidelberg: 3220720 (ADM3) --> "Karlsruhe Region" 3214104 "ADM2"
+    -- Kirchheim: 2890483 (PPLX) --> "Heidelberg" 2907911 "PPLA3"
+    --> PPLA3 and ADM4 are not linked
+    
+    SELECT p.fcode, c.fcode, COUNT(*) as cnt
+    FROM geoname p, hierarchy h, geoname c
+    WHERE p.geonameid = h.parentid AND c.geonameid = h.childid
+    GROUP BY p.fcode, c.fcode
+    ORDER BY cnt DESC
+    
+Check for PPLA places that have a ADM parent in hierarchy table
+
+SELECT p.geonameid, p.name, p.latitude, p.longitude, p.fcode, p.country, p.admin1, p.admin2, p.admin3, p.admin4, p.population, p.gtopo30,
+      c.geonameid, c.name, c.latitude, c.longitude, c.fcode, c.country, c.admin1, c.admin2, c.admin3, c.admin4, c.population, c.gtopo30
+FROM geoname p, geoname c, admin4codes a1, admin4codes a2
+WHERE c.geonameid = 20 AND p.fcode ~ 'ADM[1-4]' AND a1.geonameid = p.geonameid AND a2.geonameid = c.geonameid AND a1.admin4 = a2.admin4
+
+SELECT p.geonameid, p.name, p.latitude, p.longitude, p.fcode, p.country, p.admin1, p.admin2, p.admin3, p.admin4, p.population, p.gtopo30,
+      c.geonameid, c.name, c.latitude, c.longitude, c.fcode, c.country, c.admin1, c.admin2, c.admin3, c.admin4, c.population, c.gtopo30
+FROM geoname p, geoname c, hierarchy h
+WHERE p.fcode LIKE 'ADM%' AND c.fcode LIKE 'PPLA%' AND p.geonameid = h.parentid AND c.geonameid = h.childid 
+
+SELECT p.geonameid, p.name, p.latitude, p.longitude, p.fcode, p.country, p.admin1, p.admin2, p.admin3, p.admin4, p.population, p.gtopo30,
+      c.geonameid, c.name, c.latitude, c.longitude, c.fcode, c.country, c.admin1, c.admin2, c.admin3, c.admin4, c.population, c.gtopo30
+FROM geoname p, geoname c, hierarchy h, (SELECT childid FROM hierarchy GROUP BY childid HAVING COUNT(*) > 1) as tmp
+WHERE c.geonameid = tmp.childid AND h.childid = tmp.childid AND p.geonameid = h.parentid   
+ORDER BY c.geonameid
+
+- alternatename isolanguage="abbr" also stored links other than wikipedia-links!
+SELECT g.name, a.*
+FROM geoname g, alternatename a
+WHERE g.geonameid = a.geonameid AND isolanguage = 'abbr'
+
+=======================================================================================================================
+ GeoNames Helper function:
+=======================================================================================================================
+
+CREATE OR REPLACE FUNCTION url_decode(input text) RETURNS text
+LANGUAGE plpgsql IMMUTABLE STRICT AS $$
+DECLARE
+ bin bytea = '';
+ byte text;
+BEGIN
+ FOR byte IN (select (regexp_matches(input, '(%..|.)', 'g'))[1]) LOOP
+   IF length(byte) = 3 THEN
+     bin = bin || decode(substring(byte, 2, 2), 'hex');
+   ELSE
+     bin = bin || byte::bytea;
+   END IF;
+ END LOOP;
+ byte = convert_from(bin, 'utf8');
+ RETURN byte;
+EXCEPTION WHEN others THEN
+  RAISE NOTICE 'caught error when processing %', input;
+  RETURN null;
+
+END
+$$;
+
+SELECT a.geonameid, url_decode(alternatename)
+FROM alternatename a,
+(
+SELECT geonameid, COUNT(*) AS cnt
+FROM alternatename
+WHERE isolanguage = 'link'
+GROUP BY geonameid
+HAVING COUNT(*) > 1) as b
+
+WHERE a.geonameid = b.geonameid AND isolanguage = 'link'
+    
+=======================================================================================================================
+ Gazetteer SQL Code:
+=======================================================================================================================
+    
+-- select hierarchy paths for given place and relationship-type
+WITH RECURSIVE subdiv_tree AS (
+SELECT 0::bigint AS parent, place_id AS child, name AS name, 1 AS length, FALSE AS is_leaf
+FROM place_name WHERE place_id = 104 AND is_preferred AND iso_language IS NULL --= 'Europe'
+
+UNION ALL
+
+SELECT pr.right_place_id AS parent, pr.left_place_id AS child, t.name || '->' || pn.name AS name, t.length + 1 AS length,
+    NOT EXISTS (SELECT * FROM place_relationship pr2 WHERE pr.left_place_id = pr2.right_place_id) AS is_leaf
+FROM place_relationship AS pr JOIN place_name pn ON pn.place_id = pr.left_place_id INNER JOIN subdiv_tree AS t
+ ON pr.right_place_id = t.child
+ WHERE is_preferred AND iso_language IS NULL AND t.length < 3
+)
+SELECT *
+FROM subdiv_tree
+WHERE is_leaf

@@ -1,0 +1,131 @@
+{
+  "dbConnectionConfigurations": {
+    "test.geoparser_config.full_dbinfo": {
+      "dbConnectionData": {
+        "dbName": "testdb",
+        "host": "localhost",
+        "port": 5432,
+        "userName": "tester",
+        "password": ["t", "e", "s", "t", "e", "r"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "hostAddress": "localhost",
+        "port": 22,
+        "userName": "tester",
+        "password": ["t", "e", "s", "t", "e", "r"],
+        "portForwardingRules": [
+          {
+            "bindAddress": "*",
+            "localPort": 12345,
+            "hostAddress": "localhost",
+            "remotePort": 56789,
+            "direction": "LOCAL"
+          },
+          {
+            "bindAddress": "*",
+            "localPort": 56789,
+            "hostAddress": "localhost",
+            "remotePort": 12345,
+            "direction": "REMOTE"
+          }
+        ],
+        "sshRequired": true,
+        "sshConfig": {
+            "string": "string_value"
+        }
+      }
+    },
+    "test.geoparser_config.min_dbinfo": {
+      "dbConnectionData": {
+        "dbName": "testdb",
+        "host": "localhost",
+        "port": 5432,
+        "authenticationRequired": false
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    },
+    "test.mongodb": {
+      "dbConnectionData": {
+        "dbName": "test",
+        "host": "localhost",
+        "port": 27017,
+        "userName": "tester",
+        "password": ["t", "e", "s", "t", "e", "r"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    },
+    "test.postgres": {
+      "dbConnectionData": {
+        "dbName": "test",
+        "host": "localhost",
+        "port": 5432,
+        "userName": "tester",
+        "password": ["t", "e", "s", "t", "e", "r"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    },
+    "test.geonames": {
+      "dbConnectionData": {
+        "dbName": "geonames",
+        "host": "localhost",
+        "port": 5432,
+        "userName": "tester",
+        "password": ["t", "e", "s", "t", "e", "r"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    },
+    "test.gazetteer": {
+      "dbConnectionData": {
+        "dbName": "gazetteer_test",
+        "host": "localhost",
+        "port": 5432,
+        "userName": "tester",
+        "password": ["t", "e", "s", "t", "e", "r"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    },
+    "local.gazetteer": {
+      "dbConnectionData": {
+        "dbName": "gazetteer",
+        "host": "localhost",
+        "port": 5432,
+        "userName": "tester",
+        "password": ["t", "e", "s", "t", "e", "r"],
+        "authenticationRequired": true
+      },
+      "sshConnectionData": {
+        "sshRequired": false
+      }
+    }
+  },
+  "configurationStrings": {
+    "gazetteer.persistence_unit.name": "test_gazetteer",
+    "gazetteer.persistence_unit.db_source": "test.gazetteer",
+    "gazetteer.working.persistence_unit.name": "productive_gazetteer",
+    "gazetteer.working.persistence_unit.db_source": "local.gazetteer",
+    "geonames.source": "test.geonames",
+    "geoparser.config.version": "0.1",
+    "opennlp.ner.model.path": "data/opennlp_models/en-ner-location.bin",
+    "opennlp.tokenizer.model.path": "data/opennlp_models/en-token.bin",
+    "opennlp.sentence_detector.model.path": "data/opennlp_models/en-sent.bin",
+    "stanford.ner.model.path": "data/stanford_ner_models/english.all.3class.distsim.crf.ser.gz",
+    "stanford.ner.prop.path": "data/stanford_ner_models/english.all.3class.distsim.prop",
+    "stanford.pos.model.path": "data/stanford_ner_models/english-left3words-distsim.tagger",
+    "stopwords.paths": "data/stopwords/en-stopwords.txt,data/stopwords/de-stopwords.txt"
+  }
+}
