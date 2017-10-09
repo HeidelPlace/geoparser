@@ -37,6 +37,7 @@ public class GeoparsingApproachBuilder {
 	private ToponymDisambiguationAnnotator highestAdminLevelDisamiguationAnnotator;
 	private ToponymDisambiguationAnnotator contextDisamiguationAnnotator;
 	private ToponymDisambiguationAnnotator advancedContextDisamiguationAnnotator;
+	private ToponymDisambiguationAnnotator wikipediaLocationNetworkDisambiguatorAnnotator;
 	private final Gazetteer gazetteer;
 	private final GeoparserConfig config;
 
@@ -92,6 +93,9 @@ public class GeoparsingApproachBuilder {
 			break;
 		case ADVANCED_CONTEXT_TOPONYM_DISAMBIGUATION:
 			disambiguationPipeline.addAnnotator(initAdvancedContextDisambiguationAnnotator());
+			break;
+		case WIKIPEDIA_LOCATION_NETWORK_DISAMBIGUATOR:
+			disambiguationPipeline.addAnnotator(initWikipediaLocationNetworkDisambiguatorAnnotator());
 			break;
 		default:
 			break;
@@ -227,6 +231,14 @@ public class GeoparsingApproachBuilder {
 		}
 
 		return advancedContextDisamiguationAnnotator;
+	}
+
+	private Annotator initWikipediaLocationNetworkDisambiguatorAnnotator() {
+		if (wikipediaLocationNetworkDisambiguatorAnnotator == null) {
+			wikipediaLocationNetworkDisambiguatorAnnotator = GeoparsingPipelineFactory.buildWikipediaLocationNetworkDisambiguatorAnnotator();
+		}
+
+		return wikipediaLocationNetworkDisambiguatorAnnotator;
 	}
 
 }

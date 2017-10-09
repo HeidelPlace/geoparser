@@ -12,6 +12,7 @@ import de.unihd.dbs.geoparser.process.disambiguation.HighestPopulationDisambigua
 import de.unihd.dbs.geoparser.process.disambiguation.ToponymDisambiguationAnnotator;
 import de.unihd.dbs.geoparser.process.disambiguation.ContextToponymDisambiguator;
 import de.unihd.dbs.geoparser.process.disambiguation.AdvancedContextToponymDisambiguator;
+import de.unihd.dbs.geoparser.process.disambiguation.WikipediaLocationNetworkDisambiguator;
 import de.unihd.dbs.geoparser.process.linking.GazetteerExactToponymLinker;
 import de.unihd.dbs.geoparser.process.linking.ToponymLinkingAnnotator;
 import de.unihd.dbs.geoparser.process.recognition.GazetteerLookupRecognizer;
@@ -139,5 +140,8 @@ public class GeoparsingPipelineFactory extends AnnotationPipeline {
 	}
 	public static ToponymDisambiguationAnnotator buildAdvancedContextDisambiguationAnnotator() {
 		return new ToponymDisambiguationAnnotator(new AdvancedContextToponymDisambiguator());
+	}
+	public static ToponymDisambiguationAnnotator buildWikipediaLocationNetworkDisambiguatorAnnotator() {
+		return new ToponymDisambiguationAnnotator(new WikipediaLocationNetworkDisambiguator());
 	}
 }

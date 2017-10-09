@@ -57,7 +57,7 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
                 linkedPlaces_2.addAll(entity.get(GeoparsingAnnotations.GazetteerEntriesAnnotation.class));
             }
         });
-        getToponymTextDistance(namedEntities, sentence);
+        //getToponymTextDistance(namedEntities, sentence);
         for (final CoreMap namedEntity : namedEntities) {
             if (!Objects.equals(namedEntity.get(CoreAnnotations.NamedEntityTagAnnotation.class),
                     NamedEntityType.LOCATION.name)) {
@@ -154,10 +154,9 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
     private List<PlaceRelationship> getBestRelationships(final List<Place> linkedPlaces, final Set<Long> allIds){
         Set<PlaceRelationship> finalRelation;
         List<PlaceRelationship> bestRelations = new ArrayList<>();
-        PlaceRelationship result = new PlaceRelationship();
 
         for (Place place : linkedPlaces) {
-            //place = getAlternatePlace(place, alternateIds);
+            PlaceRelationship result = new PlaceRelationship();
             finalRelation = getRelevantPlaceRelationships(place, allIds);
 
             for (final PlaceRelationship relationResult : finalRelation) {

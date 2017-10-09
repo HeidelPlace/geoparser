@@ -88,14 +88,11 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
     private Place getPlaceWithHighestRating(final Set<Place> linkedPlaces, final Set<Place> linkedPlaces_2, final HashMap<Place, Place> alternateIds) {
         final Set<Long> allIds = new HashSet<>();
         linkedPlaces_2.forEach(place ->allIds.add(place.getId()));
-
         final Set<Long> idsSamePlace = new HashSet<>();
         linkedPlaces.forEach(place -> idsSamePlace.add(place.getId()));
-
-        final List<PlaceRelationship> bestRelations = new ArrayList<>(getBestRelationships(linkedPlaces, allIds, alternateIds));
+        final Set<PlaceRelationship> bestRelations = new HashSet<>(getBestRelationships(linkedPlaces, allIds, alternateIds));
         final PlaceRelationship output = getHighestRelationship(bestRelations, alternateIds);
 
-        //System.out.println(output);
         if (output != null){
             Place outputLeftPlace = output.getLeftPlace();
             Place outputRightPlace = output.getRightPlace();
@@ -168,24 +165,30 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
         return relevantRelations;
     }
 
-    private PlaceRelationship getHighestRelationship(final List<PlaceRelationship> relations, final HashMap<Place, Place> alternateIds){
+    private PlaceRelationship getHighestRelationship(final Set<PlaceRelationship> relations, final HashMap<Place, Place> alternateIds){
         PlaceRelationship output = null;
-        Double alternatePlaceFactor;
+        Double alternatePlaceFactorRelation;
+        Double alternatePlaceFactorOutput;
 
         for (final PlaceRelationship relation : relations) {
-            alternatePlaceFactor = 1.0;
-            if (alternateIds.containsKey(relation.getLeftPlace()) || alternateIds.containsKey(relation.getRightPlace())){
-                alternatePlaceFactor = 0.01;
+            alternatePlaceFactorRelation = 1.0;
+            alternatePlaceFactorOutput = 1.0;
+
+            if (relation.getLeftPlace() != null && (alternateIds.containsKey(relation.getLeftPlace()) || alternateIds.containsKey(relation.getRightPlace()))){
+                alternatePlaceFactorRelation = 0.1;
             }
-            if (relation.getLeftPlace() != null && (output == null || (Float.parseFloat(relation.getValue())*alternatePlaceFactor) > Float.parseFloat(output.getValue()))) {
+            if (output != null && (alternateIds.containsKey(output.getLeftPlace()) || alternateIds.containsKey(output.getRightPlace()))){
+                alternatePlaceFactorOutput = 0.1;
+            }
+            if (relation.getLeftPlace() != null && (output == null || (Float.parseFloat(relation.getValue())*alternatePlaceFactorRelation) >
+                    Float.parseFloat(output.getValue())*alternatePlaceFactorOutput)) {
+                if (output != null){
+                    System.out.println(Float.parseFloat(relation.getValue())*alternatePlaceFactorRelation);
+                    System.out.println(Float.parseFloat(output.getValue())*alternatePlaceFactorOutput);
+                }
+
                 output = relation;
             }
-        }
-
-        if (output != null){
-            System.out.println(output.getValue());
-            System.out.println(output.getLeftPlace().getId());
-            System.out.println(output.getRightPlace().getId());
         }
 
         return output;
@@ -194,11 +197,11 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
     private List<PlaceRelationship> getBestRelationships(final Set<Place> linkedPlaces, final Set<Long> allIds, final HashMap<Place, Place> alternateIds){
         Set<PlaceRelationship> finalRelation;
         List<PlaceRelationship> bestRelations = new ArrayList<>();
-        PlaceRelationship result = new PlaceRelationship();
         final Set<Long> samePlaceIds = new HashSet<>();
         linkedPlaces.forEach(place -> samePlaceIds.add(place.getId()));
 
         for (final Place place : linkedPlaces) {
+            PlaceRelationship result = new PlaceRelationship();
             Place bestPlace = getAlternatePlace(place, alternateIds);
             finalRelation = getRelevantPlaceRelationships(bestPlace, allIds, alternateIds, samePlaceIds);
 
@@ -263,6 +266,9 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
             final Place originPlace = place;
             place = getMostRelationshipsPlace(place, linkedPlaces);
 
+            if(linkedPlaces.contains(place)){
+                place = originPlace;
+            }
             if (originPlace != place){
                 alternatePlaces.put(place, originPlace);
             }

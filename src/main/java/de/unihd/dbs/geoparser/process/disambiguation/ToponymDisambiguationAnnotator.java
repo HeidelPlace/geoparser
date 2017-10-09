@@ -1,10 +1,6 @@
 package de.unihd.dbs.geoparser.process.disambiguation;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import de.unihd.dbs.geoparser.core.GeoparsingAnnotations.GazetteerEntriesAnnotation;
 import de.unihd.dbs.geoparser.core.GeoparsingAnnotations.ResolvedLocationAnnotation;
@@ -81,12 +77,10 @@ public class ToponymDisambiguationAnnotator implements Annotator {
 			throw new RuntimeException("No sentence found in " + annotation);
 		}
 
-		for (final CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-			doOneSentence(annotation, sentence);
-		}
+		doFullDocument(annotation);
 	}
 
-	private CoreMap doOneSentence(final Annotation annotation, final CoreMap sentence) {
+	private void doOneSentence(final Annotation annotation, final CoreMap sentence) {
 		final List<CoreMap> mentions = sentence.get(CoreAnnotations.MentionsAnnotation.class);
 
 		final List<ResolvedLocation> output = disambiguator.disambiguate(mentions, annotation, sentence);
@@ -101,7 +95,25 @@ public class ToponymDisambiguationAnnotator implements Annotator {
 			}
 		}
 
-		return sentence;
 	}
 
+	private void doFullDocument(final Annotation annotation){
+		final List<CoreMap> mentions = new ArrayList<>();
+
+		for (final CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+			mentions.addAll(sentence.get(CoreAnnotations.MentionsAnnotation.class));
+		}
+
+		final List<ResolvedLocation> output = disambiguator.disambiguate(mentions, annotation);
+
+		for (int i = 0; i < mentions.size(); i++) {
+			final ResolvedLocation location = output.get(i);
+			if (location == null) {
+				continue;
+			}
+			else {
+				mentions.get(i).set(ResolvedLocationAnnotation.class, location);
+			}
+		}
+	}
 }

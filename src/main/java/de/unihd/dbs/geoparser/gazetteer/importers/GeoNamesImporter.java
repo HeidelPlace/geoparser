@@ -180,13 +180,8 @@ public class GeoNamesImporter implements AutoCloseable {
 			// @formatter:on
 	);
 
-	private static final Set<FeatureCode> POI_PLACES = EnumSet.of(
-	// @formatter:off
-			FeatureCode.AIRP,
-			FeatureCode.CSTL,
-			FeatureCode.HTL
-			// @formatter:on
-	);
+	private static Set<FeatureCode> POI_PLACES_TEMP = new HashSet<>(Arrays.asList(FeatureCode.values()));
+	private static final Set<FeatureCode> POI_PLACES = getPOICodes(POI_PLACES_TEMP);
 
 	private static final Logger logger = LoggerFactory.getLogger(GeoNamesImporter.class);
 	private static final int loggingVerbosity = 1000;
@@ -216,6 +211,17 @@ public class GeoNamesImporter implements AutoCloseable {
 	 *
 	 * @throws Exception if something went wrong while initializing the required resources
 	 */
+
+	private static Set<FeatureCode> getPOICodes(Set<FeatureCode> allCodes){
+		allCodes.remove(CONTINENT_ENTITY);
+		allCodes.removeAll(POLITICAL_ENTITIES);
+		allCodes.removeAll(ADMIN_ENTITIES);
+		allCodes.removeAll(ADMIN_ENTITY_SEATS);
+		allCodes.removeAll(SEAT_PARENTS);
+		allCodes.removeAll(CAPITALS);
+		allCodes.removeAll(POPULATED_PLACES);
+		return allCodes;
+	}
 	public GeoNamesImporter(final GeoparserConfig config, final EntityManager entityManager) throws Exception {
 		logger.debug("Connecting to GeoNames database");
 		connector = new PostgreSQLConnector(
