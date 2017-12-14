@@ -1,98 +1,12 @@
 {
   "dbConnectionConfigurations": {
-    "test.geoparser_config.full_dbinfo": {
-      "dbConnectionData": {
-        "dbName": "testdb",
-        "host": "localhost",
-        "port": 5432,
-        "userName": "tester",
-        "password": ["t", "e", "s", "t", "e", "r"],
-        "authenticationRequired": true
-      },
-      "sshConnectionData": {
-        "hostAddress": "localhost",
-        "port": 22,
-        "userName": "tester",
-        "password": ["t", "e", "s", "t", "e", "r"],
-        "portForwardingRules": [
-          {
-            "bindAddress": "*",
-            "localPort": 12345,
-            "hostAddress": "localhost",
-            "remotePort": 56789,
-            "direction": "LOCAL"
-          },
-          {
-            "bindAddress": "*",
-            "localPort": 56789,
-            "hostAddress": "localhost",
-            "remotePort": 12345,
-            "direction": "REMOTE"
-          }
-        ],
-        "sshRequired": true,
-        "sshConfig": {
-            "string": "string_value"
-        }
-      }
-    },
-    "test.geoparser_config.min_dbinfo": {
-      "dbConnectionData": {
-        "dbName": "testdb",
-        "host": "localhost",
-        "port": 5432,
-        "authenticationRequired": false
-      },
-      "sshConnectionData": {
-        "sshRequired": false
-      }
-    },
-    "test.mongodb": {
-      "dbConnectionData": {
-        "dbName": "test",
-        "host": "localhost",
-        "port": 27017,
-        "userName": "tester",
-        "password": ["t", "e", "s", "t", "e", "r"],
-        "authenticationRequired": true
-      },
-      "sshConnectionData": {
-        "sshRequired": false
-      }
-    },
-    "test.postgres": {
-      "dbConnectionData": {
-        "dbName": "test",
-        "host": "localhost",
-        "port": 5432,
-        "userName": "tester",
-        "password": ["t", "e", "s", "t", "e", "r"],
-        "authenticationRequired": true
-      },
-      "sshConnectionData": {
-        "sshRequired": false
-      }
-    },
-    "test.geonames": {
+    "local.geonames": {
       "dbConnectionData": {
         "dbName": "geonames",
         "host": "localhost",
         "port": 5432,
-        "userName": "tester",
-        "password": ["t", "e", "s", "t", "e", "r"],
-        "authenticationRequired": true
-      },
-      "sshConnectionData": {
-        "sshRequired": false
-      }
-    },
-    "test.gazetteer": {
-      "dbConnectionData": {
-        "dbName": "gazetteer_test",
-        "host": "localhost",
-        "port": 5432,
-        "userName": "tester",
-        "password": ["t", "e", "s", "t", "e", "r"],
+        "userName": "postgres",
+        "password": ["a", "d", "m", "i", "n"],
         "authenticationRequired": true
       },
       "sshConnectionData": {
@@ -101,11 +15,11 @@
     },
     "local.gazetteer": {
       "dbConnectionData": {
-        "dbName": "gazetteer",
+        "dbName": "gazetteer_stable",
         "host": "localhost",
         "port": 5432,
-        "userName": "tester",
-        "password": ["t", "e", "s", "t", "e", "r"],
+        "userName": "postgres",
+        "password": ["a", "d", "m", "i", "n"],
         "authenticationRequired": true
       },
       "sshConnectionData": {
@@ -114,12 +28,10 @@
     }
   },
   "configurationStrings": {
-    "gazetteer.persistence_unit.name": "test_gazetteer",
-    "gazetteer.persistence_unit.db_source": "test.gazetteer",
-    "gazetteer.working.persistence_unit.name": "productive_gazetteer",
-    "gazetteer.working.persistence_unit.db_source": "local.gazetteer",
-    "geonames.source": "test.geonames",
     "geoparser.config.version": "0.1",
+    "gazetteer.persistence_unit.name": "productive_gazetteer",
+    "gazetteer.persistence_unit.db_source": "local.gazetteer",
+    "geonames.source": "local.geonames",
     "opennlp.ner.model.path": "data/opennlp_models/en-ner-location.bin",
     "opennlp.tokenizer.model.path": "data/opennlp_models/en-token.bin",
     "opennlp.sentence_detector.model.path": "data/opennlp_models/en-sent.bin",

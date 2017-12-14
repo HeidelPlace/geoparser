@@ -25,7 +25,6 @@ import edu.stanford.nlp.util.CoreMap;
  * 
  */
 public class FirstMatchToponymDisambiguator extends ToponymDisambiguator {
-
 	@Override
 	public Set<Requirement> requires() {
 		return Collections.singleton(ToponymLinkingAnnotator.TOPONYM_LINKING_REQUIREMENT);
@@ -54,7 +53,6 @@ public class FirstMatchToponymDisambiguator extends ToponymDisambiguator {
 				output.add(null);
 				continue;
 			}
-
 			output.add(new ResolvedLocation(linkedPlaces.get(0)));
 		}
 

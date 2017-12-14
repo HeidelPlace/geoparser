@@ -74,6 +74,9 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
 
             if (resolvedLocation == null){
                 resolvedLocation = HighestPopulationDisambiguator.getPlaceWithHighestPopulation(linkedPlaces);
+                if (resolvedLocation == null){
+                    resolvedLocation = HighestAdminLevelDisambiguator.getPlaceWithHighestAdminLevel(linkedPlaces);
+                }
             }
             output.add(new ResolvedLocation(resolvedLocation));
         }
@@ -81,7 +84,7 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
         return output;
     }
 
-    private Place getPlaceWithHighestRating(final List<Place> linkedPlaces, final Set<Place> linkedPlaces_2) {
+    public static Place getPlaceWithHighestRating(final List<Place> linkedPlaces, final Set<Place> linkedPlaces_2) {
         final Set<Long> allIds = new HashSet<>();
         linkedPlaces_2.forEach(place ->allIds.add(place.getId()));
         final Set<Long> idsSamePlace = new HashSet<>();
@@ -113,7 +116,7 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
         return null;
     }
 
-    private Set<PlaceRelationship> getPlaceRelationships(final Place place){
+    private static Set<PlaceRelationship> getPlaceRelationships(final Place place){
         Set<PlaceRelationship> allRelations = new HashSet<>(place.getLeftPlaceRelationships());
         Set<PlaceRelationship> weightRelations = new HashSet<>();
 
@@ -128,7 +131,7 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
     }
 
 
-    private Set<PlaceRelationship> getRelevantPlaceRelationships(final Place place, final Set<Long> allIds){
+    private static Set<PlaceRelationship> getRelevantPlaceRelationships(final Place place, final Set<Long> allIds){
         final Set<PlaceRelationship> allRelations = new HashSet<>(getPlaceRelationships(place));
         Set<PlaceRelationship> relevantRelations = new HashSet<>();
 
@@ -140,7 +143,7 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
         return relevantRelations;
     }
 
-    private PlaceRelationship getHighestRelationship(final List<PlaceRelationship> relations){
+    private static PlaceRelationship getHighestRelationship(final List<PlaceRelationship> relations){
         PlaceRelationship output = null;
 
         for (final PlaceRelationship relation : relations) {
@@ -151,7 +154,7 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
         return output;
     }
 
-    private List<PlaceRelationship> getBestRelationships(final List<Place> linkedPlaces, final Set<Long> allIds){
+    private static List<PlaceRelationship> getBestRelationships(final List<Place> linkedPlaces, final Set<Long> allIds){
         Set<PlaceRelationship> finalRelation;
         List<PlaceRelationship> bestRelations = new ArrayList<>();
 
@@ -180,7 +183,7 @@ public class ContextToponymDisambiguator extends ToponymDisambiguator {
         return null;
     }
 
-    private Place resolveCountry(final Place place){
+    private static Place resolveCountry(final Place place){
         return place;
     }
 }

@@ -32,12 +32,6 @@ public class GazetteerInstaller implements AutoCloseable {
 	private final EntityManager em; // current JPA session
 
 	public static void main(final String[] args) throws IllegalArgumentException, JSchException, Exception {
-		System.in.read();
-		if (true) {
-			logger.info("PLEASE DISABLE THE FOLLOWING LINE TO ENSURE THAT YOU KNOW WHAT YOU ARE DOING!");
-			// System.exit(0);
-		}
-
 		logger.debug("Loading configuration");
 		config = new GeoparserConfig();
 

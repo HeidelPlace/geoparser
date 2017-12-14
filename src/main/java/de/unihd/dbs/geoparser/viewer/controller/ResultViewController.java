@@ -285,8 +285,8 @@ public class ResultViewController implements Initializable {
 				}
 			}
 
-			resultsVisualizationWebView.getEngine().executeScript("addNE('" + namedEntity.text + "', '"
-					+ StringUtil.toLowerCase(namedEntity.type.name) + "', " + toponymIndex + ")");
+			resultsVisualizationWebView.getEngine().executeScript("addNE('" + namedEntity.text.replaceAll("'", "\\\\\'") + "', '"
+					+ StringUtil.toLowerCase(namedEntity.type.name).replaceAll("'", "\\\\\'") + "', " + toponymIndex + ")");
 
 			lastWordStart = namedEntity.endPosition;
 			toponymIndex++;

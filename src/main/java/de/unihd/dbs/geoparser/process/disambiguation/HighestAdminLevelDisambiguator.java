@@ -30,7 +30,7 @@ import edu.stanford.nlp.util.CoreMap;
  */
 public class  HighestAdminLevelDisambiguator extends ToponymDisambiguator {
 
-	private final PlaceType adminLevelRootType;
+	private static PlaceType adminLevelRootType = null;
 
 	@Override
 	public Set<Requirement> requires() {
@@ -45,7 +45,7 @@ public class  HighestAdminLevelDisambiguator extends ToponymDisambiguator {
 	public HighestAdminLevelDisambiguator(final PlaceType adminLevelRootType) {
 		super();
 		Objects.requireNonNull(adminLevelRootType);
-		this.adminLevelRootType = adminLevelRootType;
+		HighestAdminLevelDisambiguator.adminLevelRootType = adminLevelRootType;
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class  HighestAdminLevelDisambiguator extends ToponymDisambiguator {
 		return output;
 	}
 
-	private Place getPlaceWithHighestAdminLevel(final List<Place> linkedPlaces) {
+	public static Place getPlaceWithHighestAdminLevel(final List<Place> linkedPlaces) {
 		Place highestAdminLevelPlace = linkedPlaces.get(0);
 		int highestAdminLevel = 0;
 
@@ -88,7 +88,7 @@ public class  HighestAdminLevelDisambiguator extends ToponymDisambiguator {
 		return highestAdminLevelPlace;
 	}
 
-	private int getAdminLevel(final Place place) {
+	private static int getAdminLevel(final Place place) {
 		final Set<PlaceTypeAssignment> placeTypes = place.getPlaceTypeAssignments();
 
 		int highestAdminLevel = Integer.MIN_VALUE;

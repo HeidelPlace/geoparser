@@ -235,7 +235,7 @@ public class GeoparsingApproachBuilder {
 
 	private Annotator initWikipediaLocationNetworkDisambiguatorAnnotator() {
 		if (wikipediaLocationNetworkDisambiguatorAnnotator == null) {
-			wikipediaLocationNetworkDisambiguatorAnnotator = GeoparsingPipelineFactory.buildWikipediaLocationNetworkDisambiguatorAnnotator();
+			wikipediaLocationNetworkDisambiguatorAnnotator = GeoparsingPipelineFactory.buildWikipediaLocationNetworkDisambiguatorAnnotator(gazetteer);
 		}
 
 		return wikipediaLocationNetworkDisambiguatorAnnotator;

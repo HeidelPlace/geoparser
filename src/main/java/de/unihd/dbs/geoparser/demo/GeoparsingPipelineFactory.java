@@ -77,7 +77,18 @@ public class GeoparsingPipelineFactory extends AnnotationPipeline {
 		final AnnotationPipeline pipeline = buildCommonPreprocessingPipeline(config);
 		pipeline.addAnnotator(buildStanfordPOSAnnotator(config));
 		pipeline.addAnnotator(buildGazetteerLookupRecognitionAnnotator(gazetteer));
-		pipeline.addAnnotator(buildGazetteerExactToponymLinkerAnnotator(gazetteer, 5));
+		pipeline.addAnnotator(buildGazetteerExactToponymLinkerAnnotator(gazetteer, 500));
+
+		return pipeline;
+	}
+
+	public static AnnotationPipeline buildGazetteerDisambiguationPipeline(final GeoparserConfig config,
+																						   final Gazetteer gazetteer) throws UnknownConfigLabelException {
+		final AnnotationPipeline pipeline = buildCommonPreprocessingPipeline(config);
+		pipeline.addAnnotator(buildStanfordPOSAnnotator(config));
+		pipeline.addAnnotator(buildGazetteerLookupRecognitionAnnotator(gazetteer));
+		pipeline.addAnnotator(buildGazetteerExactToponymLinkerAnnotator(gazetteer, 500));
+		pipeline.addAnnotator(buildWikipediaLocationNetworkDisambiguatorAnnotator(gazetteer));
 
 		return pipeline;
 	}
@@ -141,7 +152,7 @@ public class GeoparsingPipelineFactory extends AnnotationPipeline {
 	public static ToponymDisambiguationAnnotator buildAdvancedContextDisambiguationAnnotator() {
 		return new ToponymDisambiguationAnnotator(new AdvancedContextToponymDisambiguator());
 	}
-	public static ToponymDisambiguationAnnotator buildWikipediaLocationNetworkDisambiguatorAnnotator() {
-		return new ToponymDisambiguationAnnotator(new WikipediaLocationNetworkDisambiguator());
+	public static ToponymDisambiguationAnnotator buildWikipediaLocationNetworkDisambiguatorAnnotator(final Gazetteer gazetteer) {
+		return new ToponymDisambiguationAnnotator(new WikipediaLocationNetworkDisambiguator(gazetteer));
 	}
 }

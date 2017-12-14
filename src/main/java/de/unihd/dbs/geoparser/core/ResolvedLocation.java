@@ -44,7 +44,7 @@ public class ResolvedLocation {
 		super();
 		Objects.requireNonNull(gazetteerEntry);
 		if (gazetteerEntry.getFootprints().isEmpty()) {
-			throw new IllegalArgumentException("The given place does not have a footprint!");
+			throw new IllegalArgumentException("The place " + gazetteerEntry.getId() + " does not have a footprint! " + gazetteerEntry);
 		}
 
 		this.gazetteerEntry = gazetteerEntry;

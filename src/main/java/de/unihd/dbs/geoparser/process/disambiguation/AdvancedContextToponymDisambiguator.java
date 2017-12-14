@@ -2,6 +2,7 @@ package de.unihd.dbs.geoparser.process.disambiguation;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.jcraft.jsch.HASH;
 import de.unihd.dbs.geoparser.core.GeoparsingAnnotations;
@@ -25,6 +26,8 @@ import org.apache.xpath.operations.Bool;
 
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Implementation of {@link ToponymDisambiguator} that disambiguates toponyms by the edges of the Wikipedia-Location-Network.
@@ -77,7 +80,7 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
             if (resolvedLocation == null){
                 List<Place> places = new ArrayList<>();
                 places.addAll(linkedPlaces);
-                resolvedLocation = HighestPopulationDisambiguator.getPlaceWithHighestPopulation(places);
+                resolvedLocation = HighestAdminLevelDisambiguator.getPlaceWithHighestAdminLevel(places);
             }
             output.add(new ResolvedLocation(resolvedLocation));
         }
@@ -85,7 +88,7 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
         return output;
     }
 
-    private Place getPlaceWithHighestRating(final Set<Place> linkedPlaces, final Set<Place> linkedPlaces_2, final HashMap<Place, Place> alternateIds) {
+    public Place getPlaceWithHighestRating(final Set<Place> linkedPlaces, final Set<Place> linkedPlaces_2, final HashMap<Place, Place> alternateIds) {
         final Set<Long> allIds = new HashSet<>();
         linkedPlaces_2.forEach(place ->allIds.add(place.getId()));
         final Set<Long> idsSamePlace = new HashSet<>();
@@ -124,9 +127,9 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
         return null;
     }
 
-    private Set<PlaceRelationship> getPlaceRelationships(final Place place){
+    public static Set<PlaceRelationship> getPlaceRelationships(final Place place){
         Set<PlaceRelationship> allRelations = new HashSet<>(place.getLeftPlaceRelationships());
-        Set<PlaceRelationship> weightRelations = new HashSet<>();
+        final Set<PlaceRelationship> weightRelations = new HashSet<>();
 
         allRelations.addAll(place.getRightPlaceRelationships());
 
@@ -141,6 +144,8 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
 
     private Set<PlaceRelationship> getRelevantPlaceRelationships(final Place place, Set<Long> allIds, final HashMap<Place, Place> alternateIds, Set<Long> samePlaceIds){
         final Set<PlaceRelationship> allRelations = new HashSet<>(getPlaceRelationships(place));
+
+
 
         alternateIds.forEach((place1, place2) -> {
             if (allIds.contains(place2.getId())){
@@ -165,7 +170,7 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
         return relevantRelations;
     }
 
-    private PlaceRelationship getHighestRelationship(final Set<PlaceRelationship> relations, final HashMap<Place, Place> alternateIds){
+    public static PlaceRelationship getHighestRelationship(final Set<PlaceRelationship> relations, final HashMap<Place, Place> alternateIds){
         PlaceRelationship output = null;
         Double alternatePlaceFactorRelation;
         Double alternatePlaceFactorOutput;
@@ -276,7 +281,7 @@ public class AdvancedContextToponymDisambiguator extends ToponymDisambiguator {
         return alternatePlaces;
     }
 
-    private Place getAlternatePlace(final Place place, final HashMap<Place, Place> alternateIds){
+    private static Place getAlternatePlace(final Place place, final HashMap<Place, Place> alternateIds){
         if(alternateIds.containsValue(place)){
             for(Map.Entry<Place, Place> entry : alternateIds.entrySet()){
                 if(entry.getValue() == place){

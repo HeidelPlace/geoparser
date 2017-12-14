@@ -29,8 +29,8 @@ import edu.stanford.nlp.pipeline.AnnotationPipeline;
 
 public class GazetteerExactToponymLinkerTest {
 
-	public static final String WORKING_GAZETTEER_PERSISTENCE_UNIT_NAME_LABEL = "gazetteer.working.persistence_unit.name";
-	public static final String WORKING_GAZETTEER_PERSISTENCE_UNIT_DB_CONNECTION_INFO_LABEL = "gazetteer.working.persistence_unit.db_source";
+	public static final String WORKING_GAZETTEER_PERSISTENCE_UNIT_NAME_LABEL = "gazetteer.persistence_unit.name";
+	public static final String WORKING_GAZETTEER_PERSISTENCE_UNIT_DB_CONNECTION_INFO_LABEL = "gazetteer.persistence_unit.db_source";
 
 	private static GazetteerPersistenceManager gpm;
 	private static Gazetteer gazetteer;
