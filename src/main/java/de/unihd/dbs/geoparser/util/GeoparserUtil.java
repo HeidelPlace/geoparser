@@ -117,7 +117,7 @@ public class GeoparserUtil {
 	}
 
 	public static List<ResolvedToponym> getResolvedToponyms(final CoreMap document) {
-		return getResolvedToponymMentions(document).stream().map(token -> new ResolvedToponym(token))
+		return getResolvedToponymMentions(document).stream().map(ResolvedToponym::new)
 				.collect(Collectors.toList());
 	}
 

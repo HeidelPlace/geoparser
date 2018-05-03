@@ -157,7 +157,7 @@ public class GeoparsingViewController implements Initializable {
 		//disambiguationModuleCheckComboBox.getCheckModel()
 		//		.check(GeoparsingApproach.DisambiguationModule.HIGHEST_ADMIN_LEVEL_DISAMBIGUATION);
 		disambiguationModuleCheckComboBox.getCheckModel()
-				.check(GeoparsingApproach.DisambiguationModule.CONTEXT_TOPONYM_DISAMBIGUATION);
+				.check(GeoparsingApproach.DisambiguationModule.POPULATION_DISTANCE_WEIGHT_DISAMBIGUATOR);
 	}
 
 	@FXML
@@ -237,7 +237,7 @@ public class GeoparsingViewController implements Initializable {
 		return new Task<Void>() {
 
 			@Override
-			protected Void call() throws Exception {
+			protected Void call() {
 				for (final GeoparsingRun run : geoparsingRuns) {
 					final GeoparsingResult result = run.results;
 					final GeoparsingApproach approach = run.geoparsingApproach;

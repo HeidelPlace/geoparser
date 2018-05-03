@@ -1,225 +1,181 @@
 package de.unihd.dbs.geoparser.process.disambiguation;
 
 import de.unihd.dbs.geoparser.core.GeoparsingAnnotations;
-import de.unihd.dbs.geoparser.core.NamedEntityType;
 import de.unihd.dbs.geoparser.core.ResolvedLocation;
 import de.unihd.dbs.geoparser.gazetteer.Gazetteer;
+import de.unihd.dbs.geoparser.gazetteer.models.AbstractEntity;
 import de.unihd.dbs.geoparser.gazetteer.models.Place;
 import de.unihd.dbs.geoparser.process.linking.ToponymLinkingAnnotator;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.Annotator.Requirement;
-import edu.stanford.nlp.util.ArraySet;
 import edu.stanford.nlp.util.CollectionUtils;
 import edu.stanford.nlp.util.CoreMap;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link ToponymDisambiguator} that disambiguates toponyms by the edges of the Wikipedia-Location-Network.
  * The edge between two toponyms in a sentence with the highest value predicts the most likely match for the linked toponyms.
  *
  * @author fbecker
- *
  */
 public class WikipediaLocationNetworkDisambiguator extends ToponymDisambiguator {
     private final Gazetteer gazetteer;
     private List<Place> unambiguousPlaces = new ArrayList<>();
     private Map<Long, List<Double>> seeds = new HashMap<>();
-    private static final Double WEIGHT_THRESHOLD = 1.0;
-    private int count_weight = 0;
-    private int count_first = 0;
+    private static final Double WEIGHT_THRESHOLD = 0.0;
 
-    public WikipediaLocationNetworkDisambiguator(final Gazetteer gazetteer){
+    /**
+     * Constructor.
+     *
+     * @param gazetteer currently used gazetteer instance.
+     */
+    public WikipediaLocationNetworkDisambiguator(final Gazetteer gazetteer) {
         super();
         this.gazetteer = gazetteer;
-
-
     }
 
+    /**
+     * Overridden requirements that are to be fulfilled.
+     *
+     * @return requirements for the implemented module.
+     */
     @Override
     public Set<Requirement> requires() {
         return Collections.singleton(ToponymLinkingAnnotator.TOPONYM_LINKING_REQUIREMENT);
     }
 
+    /**
+     * Requirements fulfilled by the Disambiguator.
+     *
+     * @return set of requirements.
+     */
     @Override
     public Set<Requirement> requirementsSatisfied() {
         return Collections.emptySet();
     }
 
+    /**
+     * Core function used by the geoparsing pipeline.
+     *
+     * @param namedEntities the {@link CoreAnnotations.MentionsAnnotation}, from which to disambiguate contained toponyms.
+     * @param document      the source document.
+     * @param sentence      the source sentence.
+     * @return set of resolved locations.
+     */
     @Override
     public List<ResolvedLocation> disambiguate(final List<CoreMap> namedEntities, final Annotation document,
                                                final CoreMap sentence) {
-        double startTime = System.nanoTime();
         final List<ResolvedLocation> output = new ArrayList<>(namedEntities.size());
-        final List<Place> allLinkedPlaces = new ArrayList<>();
-        final List<Long> allLinkedPlacesIds = new ArrayList<>();
+        final List<ArrayList<Long>> allLinkedPlacesIdList = new ArrayList<>();
+        final List<ArrayList<Place>> allLinkedPlacesList = new ArrayList<>();
 
         namedEntities.forEach(entity -> {
             try {
-                allLinkedPlaces.addAll(Objects.requireNonNull(entity.get(GeoparsingAnnotations.GazetteerEntriesAnnotation.class)));
-            }
-            catch (NullPointerException ignored){
+                allLinkedPlacesList.add(new ArrayList<>(entity.get(GeoparsingAnnotations.GazetteerEntriesAnnotation.class)));
+            } catch (NullPointerException ignored) {
             }
         });
 
-        if(allLinkedPlaces.isEmpty()){
+        if (allLinkedPlacesList.isEmpty()) {
             output.add(null);
             return output;
         }
 
-        allLinkedPlaces.forEach(place -> allLinkedPlacesIds.add(place.getId()));
-        final Set<Long> idsInWLN = getIdsInWLN(allLinkedPlacesIds);
+        allLinkedPlacesList.forEach(list -> allLinkedPlacesIdList.add(new ArrayList<>(list.stream().map(AbstractEntity::getId).collect(Collectors.toList()))));
 
-        namedEntities.forEach(entity -> {
+        final List<Long> allLinkedIds = allLinkedPlacesIdList.stream().flatMap(Collection::stream).collect(Collectors.toList());
+
+        allLinkedPlacesList.forEach(places -> {
             try {
-                getSeed(entity.get(GeoparsingAnnotations.GazetteerEntriesAnnotation.class), allLinkedPlacesIds, idsInWLN);
-            }
-            catch (NullPointerException ignored){
+                getSeed(places, allLinkedIds);
+            } catch (NullPointerException ignored) {
             }
         });
 
-
-        System.out.println(idsInWLN.size());
-
-        for (final CoreMap namedEntity : namedEntities) {
-            List<Place> linkedPlaces;
+        for (final List<Place> linkedPlaces : allLinkedPlacesList) {
             Place resolvedLocation = null;
-
-            try {
-                linkedPlaces = new ArrayList<>(namedEntity.get(GeoparsingAnnotations.GazetteerEntriesAnnotation.class));
-            } catch (NullPointerException error) {
-                continue;
-            }
-
-            if (!Objects.equals(namedEntity.get(CoreAnnotations.NamedEntityTagAnnotation.class),
-                    NamedEntityType.LOCATION.name) || linkedPlaces.isEmpty()) {
-                output.add(null);
-                continue;
-            }
 
             if (!Collections.disjoint(unambiguousPlaces, linkedPlaces)) {
                 List<Place> getIntersection = new ArrayList<>(unambiguousPlaces);
-                getIntersection.retainAll(linkedPlaces);
-                assert(getIntersection.size() == 1);
-                resolvedLocation = getIntersection.get(0);
-            }
 
-            else if(seeds.size() > 1){
-                resolvedLocation = getResolvedPlace(new HashSet<>(linkedPlaces));
+                getIntersection.retainAll(linkedPlaces);
+                resolvedLocation = getIntersection.get(0);
+            } else if (!unambiguousPlaces.isEmpty() && unambiguousPlaces.size() != namedEntities.size()) {
+                resolvedLocation = getPlaceByEdgeWeightSum(new HashSet<>(linkedPlaces));
             }
 
             if (resolvedLocation == null) {
-                resolvedLocation = new ArrayList<>(linkedPlaces).get(0);
-                count_first ++;
-
-                if (resolvedLocation == null){
-                    resolvedLocation = HighestAdminLevelDisambiguator.getPlaceWithHighestAdminLevel(new ArrayList<>(linkedPlaces));
-                    //System.out.println("NO SEED RELATION - FIRST ITEM SELECTED");
-                }
+                resolvedLocation = HighestPopulationDisambiguator.getPlaceWithHighestPopulation(new ArrayList<>(linkedPlaces));
             }
 
-            try{
+            try {
                 output.add(new ResolvedLocation(resolvedLocation));
-            }
-            catch (Exception e ){
-                System.out.println(e.getMessage());
+            } catch (Exception e) {
                 output.add(null);
             }
         }
-        System.out.println("DISAMBIGUATION TIME: " + (System.nanoTime() - startTime)/1000000 + "ms");
+
         seeds.clear();
         unambiguousPlaces.clear();
-        System.out.println("WEIGHT RESOLVED: " + count_weight);
-        System.out.println("FIRST RESOLVED: " + count_first);
+
         return output;
     }
 
-
-
-    private Place getResolvedPlace(final Set<Place> linkedPlaces) {
-        if (seeds.isEmpty()){
-            System.out.println("NO SEEEDS");
-            return null;
-        }
-
-        return getPlaceByEdgeWeightSum(linkedPlaces);
-    }
-
-
-
+    /**
+     * Retrieves the intersecting ids of all candidate locations and those present in the WLN.
+     *
+     * @param allLinkedIds identifiers for all candidate locations.
+     * @return identifiers that occur in the WLN.
+     */
     private Set<Long> getIdsInWLN(final List<Long> allLinkedIds) {
         final Set<Long> occurredIds = new HashSet<>();
-
-        final List<Object> checkSeedList = gazetteer.getEntityManger().createNativeQuery("SELECT DISTINCT * FROM " +
-                "(SELECT DISTINCT left_place_id FROM place_relationship WHERE left_place_id IN :ids AND type_id = 33 UNION ALL " +
-                "SELECT DISTINCT right_place_id FROM place_relationship WHERE right_place_id IN :ids AND type_id = 33 " +
-                "GROUP BY left_place_id, right_place_id HAVING count(left_place_id)>1 OR count(right_place_id)>1) AS ids").setParameter("ids", allLinkedIds)
-                .getResultList();
+        final List<Object> checkSeedList = new ArrayList<Object>(gazetteer.getEntityManger().createNativeQuery("SELECT * FROM " +
+                "(SELECT DISTINCT place_1 FROM wln " +
+                "WHERE wln.place_1 IN :ids UNION DISTINCT " +
+                "SELECT DISTINCT place_2 FROM wln WHERE wln.place_2 IN :ids) AS ids")
+                .setParameter("ids", allLinkedIds)
+                .getResultList());
 
         checkSeedList.forEach(id -> occurredIds.add(((BigInteger) id).longValue()));
         return occurredIds;
     }
 
-
-
-    private void getSeed(final List<Place> linkedPlaces, final List<Long> allLinkedPlaces, final Set<Long> idsInWLN) {
+    /**
+     * Retrieves seed locations, i.e., locations where exactly one candidate appears in the WLN.
+     * These locations are used as the base neighbourhood of locations in a document.
+     *
+     * @param linkedPlaces    candidate locations for the current place.
+     * @param allLinkedPlaces identifiers of all candidate locations.
+     */
+    private void getSeed(final List<Place> linkedPlaces, final List<Long> allLinkedPlaces) {
         Place seedPlace;
         Set<Long> linkedIds = new HashSet<>(linkedPlaces.size());
 
         linkedPlaces.forEach(place -> linkedIds.add(place.getId()));
 
-        final List<Long> intersection = new ArrayList<>(CollectionUtils.intersection(linkedIds, idsInWLN));
-        if (intersection.size() == 1){
-           seedPlace = gazetteer.getPlace(intersection.get(0));
+        final List<Long> intersection = new ArrayList<>(CollectionUtils.intersection(linkedIds, getIdsInWLN(allLinkedPlaces)));
+        if (intersection.size() == 1) {
+            seedPlace = gazetteer.getPlace(intersection.get(0));
+            fillSeedMap(seedPlace.getId(), allLinkedPlaces);
+            unambiguousPlaces.add(seedPlace);
         }
-        else{
-            return;
-        }
-
-        final Long id = seedPlace.getId();
-        List<Object[]> queryList = gazetteer.getEntityManger().createNativeQuery("SELECT value, left_place_id, right_place_id " +
-                "FROM place_relationship WHERE (left_place_id = CAST((:id_1) AS BIGINT) OR right_place_id = CAST((:id_2) AS BIGINT))" +
-                " AND type_id = cast(33 AS BIGINT)").setParameter("id_1", id).setParameter("id_2", id).getResultList();
-
-        queryList.forEach(objects -> {
-            List<Double> tmpList;
-            if (objects[1] == id && allLinkedPlaces.contains(toLong(objects[2]))) {
-                tmpList = seeds.computeIfAbsent(toLong(objects[2]), aLong ->  new ArrayList<Double>(){{
-                    add(strToDouble(objects[0]));
-                }});
-                if (tmpList.size() > 1 || seeds.get(toLong(objects[2])).get(0).equals(strToDouble(objects[0]))){
-                    tmpList.add(strToDouble(objects[0]));
-                }
-            } else {
-                tmpList = seeds.computeIfAbsent(toLong(objects[1]), aLong ->  new ArrayList<Double>(){{
-                    add(strToDouble(objects[0]));
-                }});
-                if (tmpList.size() > 1 || seeds.get(toLong(objects[1])).get(0).equals(strToDouble(objects[0]))){
-                    tmpList.add(strToDouble(objects[0]));
-                }
-            }
-        });
-        unambiguousPlaces.add(seedPlace);
-        count_weight ++;
     }
 
-
-    private Long toLong(final Object object){
-        return ((BigInteger) object).longValue();
-    }
-
-    private Double strToDouble(final Object object){
-        return Double.parseDouble((String) object);
-    }
-
-
+    /**
+     * Computes the sum of edge weights between a candidate and all seed locations.
+     *
+     * @param place current candidate location.
+     * @return sum of edge weights to all seed locations.
+     */
     private double getSeedRelations(final Place place) {
         double sum = 0.0;
         List<Double> seedWeights = seeds.get(place.getId());
 
-        if(seedWeights != null){
+        if (seedWeights != null) {
             for (double aDouble : seedWeights) {
                 sum += aDouble;
             }
@@ -227,12 +183,16 @@ public class WikipediaLocationNetworkDisambiguator extends ToponymDisambiguator 
         return sum;
     }
 
-
-
+    /**
+     * Retrieves the best scoring candidate per bucket (set of candidates).
+     *
+     * @param linkedPlaces candidate locations of the current toponym.
+     * @return best scoring candidate location.
+     */
     private Place getPlaceByEdgeWeightSum(final Set<Place> linkedPlaces) {
         double edgeWeightSum = 0.0;
         Place output = null;
-        
+
         for (final Place place : linkedPlaces) {
             double tempSum = getSeedRelations(place);
             if (tempSum > edgeWeightSum && tempSum > WEIGHT_THRESHOLD) {
@@ -240,8 +200,59 @@ public class WikipediaLocationNetworkDisambiguator extends ToponymDisambiguator 
                 output = place;
             }
         }
-
-        if (output != null) count_weight++;
         return output;
+    }
+
+    /**
+     * Fill the map with seed locations and a list of edges to candidates from the document.
+     *
+     * @param id              current seed id.
+     * @param allLinkedPlaces identifiers of all candidate locations.
+     */
+    private void fillSeedMap(final Long id, final List<Long> allLinkedPlaces) {
+        final List<Object[]> queryList = new ArrayList<Object[]>(gazetteer.getEntityManger().createNativeQuery("SELECT " +
+                "weight, place_1, place_2 FROM wln " +
+                "WHERE (place_1 = CAST((:id) AS BIGINT) OR place_2 = CAST((:id) AS BIGINT))")
+                .setParameter("id", id).getResultList());
+
+        queryList.forEach(objects -> {
+            final List<Double> tmpList;
+
+            if (objects[1] == id && allLinkedPlaces.contains(toLong(objects[2]))) {
+                tmpList = seeds.computeIfAbsent(toLong(objects[2]), aLong -> new ArrayList<Double>() {{
+                    add(strToDouble(objects[0].toString()));
+                }});
+                if (tmpList.size() > 1 || seeds.get(toLong(objects[2])).get(0).equals(strToDouble(objects[0].toString()))) {
+                    tmpList.add(strToDouble(objects[0].toString()));
+                }
+            } else {
+                tmpList = seeds.computeIfAbsent(toLong(objects[1]), aLong -> new ArrayList<Double>() {{
+                    add(strToDouble(objects[0].toString()));
+                }});
+                if (tmpList.size() > 1 || seeds.get(toLong(objects[1])).get(0).equals(strToDouble(objects[0].toString()))) {
+                    tmpList.add(strToDouble(objects[0].toString()));
+                }
+            }
+        });
+    }
+
+    /**
+     * Util function for casting objects to type long.
+     *
+     * @param object to be cast.
+     * @return cast object.
+     */
+    private Long toLong(final Object object) {
+        return ((BigInteger) object).longValue();
+    }
+
+    /**
+     * Util function for casting objects to type string.
+     *
+     * @param object to be cast.
+     * @return cast object.
+     */
+    private Double strToDouble(final Object object) {
+        return Double.parseDouble((String) object);
     }
 }

@@ -81,7 +81,9 @@ public class HighestPopulationDisambiguator extends ToponymDisambiguator {
 				highestPopulation = placePopulation;
 			}
 		}
-
+		if (highestPopulatedPlace == null){
+			highestPopulatedPlace = linkedPlaces.get(0);
+		}
 		return highestPopulatedPlace;
 	}
 

@@ -35,3 +35,6 @@ hs_err_pid*
 # Maven
 log/
 target/
+
+# Eval
+dumps/
