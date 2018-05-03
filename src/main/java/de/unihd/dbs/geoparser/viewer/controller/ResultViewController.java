@@ -209,10 +209,15 @@ public class ResultViewController implements Initializable {
 			final NamedEntity selectedEntity = resultsTableView.getSelectionModel().getSelectedItem();
 
 			if (selectedEntity instanceof LinkedToponym) {
-				final Place place = ((LinkedToponym) selectedEntity).gazetteerEntries
-						.get(Integer.parseInt(handler.getData()));
-				linkedPlacesTableView.getSelectionModel().select(place);
-				linkedPlacesTableView.scrollTo(place);
+				final List<Place> places = new ArrayList<>();
+				((LinkedToponym) selectedEntity).gazetteerEntries.forEach(place1 -> {
+					if (place1.getId() == Integer.parseInt(handler.getData())){
+						 places.add(place1);
+					}
+				});
+
+				linkedPlacesTableView.getSelectionModel().select(places.get(0));
+				linkedPlacesTableView.scrollTo(places.get(0));
 			}
 			else if (selectedEntity instanceof ResolvedToponym) {
 				final Place place = ((ResolvedToponym) selectedEntity).resolvedLocation.gazetteerEntry;
@@ -276,12 +281,12 @@ public class ResultViewController implements Initializable {
 						.substring(lastWordStart, namedEntity.beginPosition).replace("\n", "<br>");
 				if (textBeforeEntity.length() > 0) {
 					resultsVisualizationWebView.getEngine()
-							.executeScript("addNE('" + textBeforeEntity + "', 'none', null)");
+							.executeScript("addNE('" + textBeforeEntity.replaceAll("'", "\\\\\'") + "', 'none', null)");
 				}
 			}
 
-			resultsVisualizationWebView.getEngine().executeScript("addNE('" + namedEntity.text + "', '"
-					+ StringUtil.toLowerCase(namedEntity.type.name) + "', " + toponymIndex + ")");
+			resultsVisualizationWebView.getEngine().executeScript("addNE('" + namedEntity.text.replaceAll("'", "\\\\\'") + "', '"
+					+ StringUtil.toLowerCase(namedEntity.type.name).replaceAll("'", "\\\\\'") + "', " + toponymIndex + ")");
 
 			lastWordStart = namedEntity.endPosition;
 			toponymIndex++;
@@ -292,7 +297,7 @@ public class ResultViewController implements Initializable {
 					"<br>");
 			if (textAfterLastEntity.length() > 0) {
 				resultsVisualizationWebView.getEngine()
-						.executeScript("addNE('" + textAfterLastEntity + "', 'none', null)");
+						.executeScript("addNE('" + textAfterLastEntity.replaceAll("'", "\\\\\'") + "', 'none', null)");
 			}
 		}
 	}

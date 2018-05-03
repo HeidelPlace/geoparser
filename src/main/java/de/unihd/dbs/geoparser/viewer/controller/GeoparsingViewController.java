@@ -146,20 +146,18 @@ public class GeoparsingViewController implements Initializable {
 	}
 
 	private void initDefaultView() {
-		inputTextArea.setText("My name is Ludwig. This has nothing to do with the town Ludwig.\n"
-				+ "I study at Ruprechts-Karl-Universität in Heidelberg, Germany.\n"
-				+ "New York Times is a newspaper. It is 5:30 p.m.\n"
-				+ "U.S. is an abbreviation for the United States of America.\n" + "The Simpsons live in Springfield.\n"
-				+ "What about the place Steffies Hostel Heidelberg?");
+		inputTextArea.setText("Berlin and Hamburg.");
 		// recognitionModuleCheckComboBox.getCheckModel().check(RecognitionModule.STANFORD_NER);
 		recognitionModuleCheckComboBox.getCheckModel().check(GeoparsingApproach.RecognitionModule.GAZETTEER_LOOKUP);
 		linkingModuleCheckComboBox.getCheckModel().check(GeoparsingApproach.LinkingModule.GAZETTEER_LOOKUP_EXACT);
+		//disambiguationModuleCheckComboBox.getCheckModel()
+		//		.check(GeoparsingApproach.DisambiguationModule.FIRST_MATCH_DISAMBIGUATION);
+		//disambiguationModuleCheckComboBox.getCheckModel()
+		//		.check(GeoparsingApproach.DisambiguationModule.HIGHEST_POPULATION_DISAMBIGUATION);
+		//disambiguationModuleCheckComboBox.getCheckModel()
+		//		.check(GeoparsingApproach.DisambiguationModule.HIGHEST_ADMIN_LEVEL_DISAMBIGUATION);
 		disambiguationModuleCheckComboBox.getCheckModel()
-				.check(GeoparsingApproach.DisambiguationModule.FIRST_MATCH_DISAMBIGUATION);
-		disambiguationModuleCheckComboBox.getCheckModel()
-				.check(GeoparsingApproach.DisambiguationModule.HIGHEST_POPULATION_DISAMBIGUATION);
-		disambiguationModuleCheckComboBox.getCheckModel()
-				.check(GeoparsingApproach.DisambiguationModule.HIGHEST_ADMIN_LEVEL_DISAMBIGUATION);
+				.check(GeoparsingApproach.DisambiguationModule.POPULATION_DISTANCE_WEIGHT_DISAMBIGUATOR);
 	}
 
 	@FXML
@@ -239,7 +237,7 @@ public class GeoparsingViewController implements Initializable {
 		return new Task<Void>() {
 
 			@Override
-			protected Void call() throws Exception {
+			protected Void call() {
 				for (final GeoparsingRun run : geoparsingRuns) {
 					final GeoparsingResult result = run.results;
 					final GeoparsingApproach approach = run.geoparsingApproach;

@@ -150,7 +150,7 @@ public class GazetteerLookupRecognizer extends ToponymRecognizer {
 	}
 
 	private List<Place> runExactNameMatchQuery(final String name) {
-		return runQuery(Arrays.asList(new PlaceNamePlaceFilter(name, null, EnumSet.noneOf(NameFlag.class), false,
+		return runQuery(Arrays.asList(new PlaceNamePlaceFilter(name, null, EnumSet.noneOf(NameFlag.class), true,
 				MatchMode.EXACT, null, false)));
 	}
 

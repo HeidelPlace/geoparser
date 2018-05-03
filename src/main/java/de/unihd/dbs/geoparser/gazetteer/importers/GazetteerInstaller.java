@@ -15,7 +15,7 @@ import de.unihd.dbs.geoparser.gazetteer.util.GazetteerPersistenceManager.Hiberna
 /**
  * Installer for setting up the gazetteer database.
  * <p>
- * Configure <code>/GeoParser/src/main/resources/geoparser.config.json</code> before use.
+ * Configure <code>/GeoParser/src/main/	resources/geoparser.config.json</code> before use.
  * <p>
  * Documentation for speeding up bulk insertions: https://www.postgresql.org/docs/current/static/populate.html
  *
@@ -32,12 +32,6 @@ public class GazetteerInstaller implements AutoCloseable {
 	private final EntityManager em; // current JPA session
 
 	public static void main(final String[] args) throws IllegalArgumentException, JSchException, Exception {
-
-		if (true) {
-			logger.info("PLEASE DISABLE THE FOLLOWING LINE TO ENSURE THAT YOU KNOW WHAT YOU ARE DOING!");
-			// System.exit(0);
-		}
-
 		logger.debug("Loading configuration");
 		config = new GeoparserConfig();
 
@@ -121,7 +115,7 @@ public class GazetteerInstaller implements AutoCloseable {
 	 * <p>
 	 * Rational behind this: https://www.postgresql.org/docs/current/static/populate.html#POPULATE-RM-FKEYS
 	 *
-	 * @param entityManager the entity manager session used for persistence management
+	 * entityManager the entity manager session used for persistence management
 	 */
 	private void dropAllEntityForeignKeyConstraints() {
 		logger.info("Dropping all foreign key constraints.");

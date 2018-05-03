@@ -19,6 +19,12 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.PrecisionModel;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
 import de.unihd.dbs.geoparser.core.GeoparserConfig;
 import de.unihd.dbs.geoparser.gazetteer.importers.geonames.FeatureClass;
 import de.unihd.dbs.geoparser.gazetteer.importers.geonames.FeatureCode;
@@ -37,11 +43,6 @@ import de.unihd.dbs.geoparser.gazetteer.types.PropertyTypes;
 import de.unihd.dbs.geoparser.gazetteer.types.RelationshipTypes;
 import de.unihd.dbs.geoparser.gazetteer.util.GazetteerPersistenceManager;
 import de.unihd.dbs.geoparser.util.dbconnectors.PostgreSQLConnector;
-
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * Implementation of an importer for GeoNames data into our gazetteer schema, which is defined by the classes in
@@ -94,7 +95,8 @@ public class GeoNamesImporter implements AutoCloseable {
 	private static final String altNameLanguagesToIgnoreSQLStr = altNameLanguagesToIgnore.stream()
 			.map(alternateName -> "'" + alternateName + "'").collect(Collectors.joining(", "));
 	private static final String altNameExclusionStr = altNameLanguagesToIgnoreSQLStr.length() > 0
-			? "AND isolanguage NOT IN (" + altNameLanguagesToIgnoreSQLStr + ")" : "";
+			? "AND isolanguage NOT IN (" + altNameLanguagesToIgnoreSQLStr + ")"
+			: "";
 
 	// query for place name aliases for a given place
 	private static final String altNameStmtStr = "SELECT alternatename, isolanguage, ispreferredname, isshortname, "
@@ -141,7 +143,7 @@ public class GeoNamesImporter implements AutoCloseable {
 	private static final FeatureCode CONTINENT_ENTITY = FeatureCode.CONT;
 
 	private static final Set<FeatureCode> POLITICAL_ENTITIES = EnumSet.of(
-			// @formatter:off
+	// @formatter:off
 			FeatureCode.PCL, FeatureCode.PCLF, FeatureCode.PCLI, FeatureCode.PCLIX, // independent
 			FeatureCode.PCLD, FeatureCode.PCLS, // dependent
 			FeatureCode.TERR, // only very few not so representative entries, may be ignore?
@@ -151,7 +153,7 @@ public class GeoNamesImporter implements AutoCloseable {
 	);
 
 	private static final Set<FeatureCode> ADMIN_ENTITIES = EnumSet.of(
-			// @formatter:off
+	// @formatter:off
             FeatureCode.ADM1, FeatureCode.ADM2, FeatureCode.ADM3, FeatureCode.ADM4, FeatureCode.ADM5, FeatureCode.ADMD,
             // historical stuff
             FeatureCode.ADM1H, FeatureCode.ADM2H, FeatureCode.ADM3H, FeatureCode.ADM4H, FeatureCode.ADMDH
@@ -159,7 +161,7 @@ public class GeoNamesImporter implements AutoCloseable {
 	);
 
 	private static final Set<FeatureCode> ADMIN_ENTITY_SEATS = EnumSet.of(
-			// @formatter:off
+	// @formatter:off
 			FeatureCode.PPLA, FeatureCode.PPLA2, FeatureCode.PPLA3, FeatureCode.PPLA4,
 			FeatureCode.PPLC, FeatureCode.PPLCH, FeatureCode.PPLG
 			// @formatter:on
@@ -170,7 +172,7 @@ public class GeoNamesImporter implements AutoCloseable {
 	private static final EnumSet<FeatureCode> CAPITALS = EnumSet.of(FeatureCode.PPLC, FeatureCode.PPLCH);
 
 	private static final Set<FeatureCode> POPULATED_PLACES = EnumSet.of(
-			// @formatter:off
+	// @formatter:off
 			FeatureCode.PPL, FeatureCode.PPLX, FeatureCode.PPLS, FeatureCode.PPLL,
 			FeatureCode.PPLF, FeatureCode.PPLR,
 			FeatureCode.PPLQ, FeatureCode.PPLH, FeatureCode.PPLW,
@@ -178,13 +180,8 @@ public class GeoNamesImporter implements AutoCloseable {
 			// @formatter:on
 	);
 
-	private static final Set<FeatureCode> POI_PLACES = EnumSet.of(
-			// @formatter:off
-			FeatureCode.AIRP,
-			FeatureCode.CSTL,
-			FeatureCode.HTL
-			// @formatter:on
-	);
+	private static Set<FeatureCode> POI_PLACES_TEMP = new HashSet<>(Arrays.asList(FeatureCode.values()));
+	private static final Set<FeatureCode> POI_PLACES = getPOICodes(POI_PLACES_TEMP);
 
 	private static final Logger logger = LoggerFactory.getLogger(GeoNamesImporter.class);
 	private static final int loggingVerbosity = 1000;
@@ -214,6 +211,17 @@ public class GeoNamesImporter implements AutoCloseable {
 	 *
 	 * @throws Exception if something went wrong while initializing the required resources
 	 */
+
+	private static Set<FeatureCode> getPOICodes(Set<FeatureCode> allCodes){
+		allCodes.remove(CONTINENT_ENTITY);
+		allCodes.removeAll(POLITICAL_ENTITIES);
+		allCodes.removeAll(ADMIN_ENTITIES);
+		allCodes.removeAll(ADMIN_ENTITY_SEATS);
+		allCodes.removeAll(SEAT_PARENTS);
+		allCodes.removeAll(CAPITALS);
+		allCodes.removeAll(POPULATED_PLACES);
+		return allCodes;
+	}
 	public GeoNamesImporter(final GeoparserConfig config, final EntityManager entityManager) throws Exception {
 		logger.debug("Connecting to GeoNames database");
 		connector = new PostgreSQLConnector(
@@ -396,7 +404,8 @@ public class GeoNamesImporter implements AutoCloseable {
 				: Collections.emptyMap();
 		logger.debug("loading admin parents for capitals");
 		final Map<Integer, List<Integer>> parentIdsPerCapitalPlace = deriveSeatPlace
-				? getCapitalParentIdsFromAdminCodes() : Collections.emptyMap();
+				? getCapitalParentIdsFromAdminCodes()
+				: Collections.emptyMap();
 
 		// go for it!
 		try (final PreparedStatement geonameStmt = connector.getConnection().prepareStatement(geonameStmtStr);

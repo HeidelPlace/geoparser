@@ -1,31 +1,31 @@
 {
   "dbConnectionConfigurations": {
-    "local.geonames": {
-      "dbConnectionData": {
-        "dbName": "geonames",
-        "host": "localhost",
-        "port": 5432,
-        "userName": "postgres",
-        "password": ["a", "d", "m", "i", "n"],
-        "authenticationRequired": true
-      },
-      "sshConnectionData": {
-        "sshRequired": false
-      }
-    },
-    "local.gazetteer": {
-      "dbConnectionData": {
-        "dbName": "gazetteer",
-        "host": "localhost",
-        "port": 5432,
-        "userName": "postgres",
-        "password": ["a", "d", "m", "i", "n"],
-        "authenticationRequired": true
-      },
-      "sshConnectionData": {
-        "sshRequired": false
-      }
-    }
+	"local.geonames": {
+		"dbConnectionData": {
+			"dbName": "geonames",
+			"host": "localhost",
+			"port": 5432,
+			"userName": "postgres",
+			"password": ["a", "d", "m", "i", "n"],
+			"authenticationRequired": true
+		},
+		"sshConnectionData": {
+			"sshRequired": false
+		}
+	},
+	"local.gazetteer": {
+		"dbConnectionData": {
+			"dbName": "gazetteer",
+			"host": "localhost",
+			"port": 5432,
+			"userName": "postgres",
+			"password": ["a", "d", "m", "i", "n"],
+			"authenticationRequired": true
+		},
+		"sshConnectionData": {
+		"sshRequired": false
+	}
+}
   },
   "configurationStrings": {
     "geoparser.config.version": "0.1",

@@ -24,12 +24,12 @@ import de.unihd.dbs.geoparser.gazetteer.models.PlaceName.NameFlag;
  * provider. If any of the assigned entity instances is changed to another instance, the previous instance is
  * automatically removed from the database via JPA during persistence (orphanRemoval)!
  * <p>
- * 
+ *
  * @author lrichter
  */
 @Entity
 @Table(name = "place")
-@PrimaryKeyJoinColumn(foreignKey = @ForeignKey(name = "place_entity_id_fk") )
+@PrimaryKeyJoinColumn(foreignKey = @ForeignKey(name = "place_entity_id_fk"))
 public class Place extends AbstractEntity {
 
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "place", orphanRemoval = true)
@@ -60,7 +60,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Create an instance of {@link Place} with the given parameters.
-	 * 
+	 *
 	 * @param footprints the footprints of the place.
 	 * @param names the place names.
 	 * @param properties the place properties.
@@ -96,7 +96,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get unmodifiable view of footprints.
-	 * 
+	 *
 	 * @return all footprints of the place.
 	 */
 	public Set<Footprint> getFootprints() {
@@ -105,7 +105,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a footprint to the place.
-	 * 
+	 *
 	 * @param footprint the footprint to add. Must not be <code>null</code>.
 	 */
 	public void addFootprint(final Footprint footprint) {
@@ -120,7 +120,7 @@ public class Place extends AbstractEntity {
 	 * Remove the given footprint from the place.
 	 * <p>
 	 * <b>Note:</b> the footprint's attribute linking to this place is not removed due to JPA provided orphanRemoval!
-	 * 
+	 *
 	 * @param footprint the footprint to remove. Must not be <code>null</code>.
 	 */
 	public void removeFootprint(final Footprint footprint) {
@@ -130,7 +130,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a set of footprints to the place.
-	 * 
+	 *
 	 * @param footprints the footprints to add. Must not be <code>null</code>.
 	 */
 	public void addFootprints(final Set<Footprint> footprints) {
@@ -142,7 +142,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Set the footprints of the place.
-	 * 
+	 *
 	 * @param footprints the new footprints. If <code>null</code>, handled like an empty set.
 	 */
 	public void setFootprints(final Set<Footprint> footprints) {
@@ -156,7 +156,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get the footprints of a specific geometry type.
-	 * 
+	 *
 	 * @param geomType the geometry type.
 	 * @return the place's footprints of given geometry type.
 	 */
@@ -169,16 +169,16 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get unmodifiable view of all place names.
-	 * 
+	 *
 	 * @return all place names of the place.
 	 */
 	public Set<PlaceName> getPlaceNames() {
-		return Collections.unmodifiableSet(placeNames);
+		return placeNames;
 	}
 
 	/**
 	 * Add a place name to the place.
-	 * 
+	 *
 	 * @param placeName the place name to add. Must not be <code>null</code>.
 	 */
 	public void addPlaceName(final PlaceName placeName) {
@@ -193,7 +193,7 @@ public class Place extends AbstractEntity {
 	 * Remove the given place name from the place.
 	 * <p>
 	 * <b>Note:</b> the place names' attribute linking to this place is not removed due to JPA provided orphanRemoval!
-	 * 
+	 *
 	 * @param placeName the place name to remove. Must not be <code>null</code>.
 	 */
 	public void removePlaceName(final PlaceName placeName) {
@@ -203,7 +203,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a set of place names to the place.
-	 * 
+	 *
 	 * @param placeNames the place names to add. Must not be <code>null</code>.
 	 */
 	public void addPlaceNames(final Set<PlaceName> placeNames) {
@@ -215,7 +215,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Set the place names of the place.
-	 * 
+	 *
 	 * @param placeNames the new place names. If <code>null</code>, handled like an empty set.
 	 */
 	public void setPlaceNames(final Set<PlaceName> placeNames) {
@@ -229,7 +229,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get place names with a {@link NameFlag#IS_PREFERRED} flag.
-	 * 
+	 *
 	 * @return the place's preferred names.
 	 */
 	public Set<PlaceName> getPreferredPlaceNames() {
@@ -239,7 +239,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get all place names for the given language.
-	 * 
+	 *
 	 * @param language the language.
 	 * @return the place's names for the given language.
 	 */
@@ -251,7 +251,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get unmodifiable view of all place properties.
-	 * 
+	 *
 	 * @return all place properties of the place.
 	 */
 	public Set<PlaceProperty> getProperties() {
@@ -260,7 +260,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a place property to the place.
-	 * 
+	 *
 	 * @param property the place property to add. Must not be <code>null</code>.
 	 */
 	public void addProperty(final PlaceProperty property) {
@@ -276,7 +276,7 @@ public class Place extends AbstractEntity {
 	 * <p>
 	 * <b>Note:</b> the place property's attribute linking to this place is not removed due to JPA provided
 	 * orphanRemoval!
-	 * 
+	 *
 	 * @param property the place property to remove. Must not be <code>null</code>.
 	 */
 	public void removePlaceProperty(final PlaceProperty property) {
@@ -286,7 +286,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a set of place properties to the place.
-	 * 
+	 *
 	 * @param properties the place properties to add. Must not be <code>null</code>.
 	 */
 	public void addProperties(final Set<PlaceProperty> properties) {
@@ -298,7 +298,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Set the place properties of the place.
-	 * 
+	 *
 	 * @param properties the new place properties. If <code>null</code>, handled like an empty set.
 	 */
 	public void setProperties(final Set<PlaceProperty> properties) {
@@ -312,7 +312,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get the properties of a specific type.
-	 * 
+	 *
 	 * @param type the property type to search for.
 	 * @return the place's properties of given type.
 	 */
@@ -322,7 +322,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get the properties of a specific type.
-	 * 
+	 *
 	 * @param placePropertyTypeName the name of the property type to search for.
 	 * @return the place's properties of given type.
 	 */
@@ -334,7 +334,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get the properties with a specific value.
-	 * 
+	 *
 	 * @param value the value to search for.
 	 * @return the place's properties with given value.
 	 */
@@ -346,7 +346,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get unmodifiable view of all place type assignments.
-	 * 
+	 *
 	 * @return all place type assignments of the place.
 	 */
 	public Set<PlaceTypeAssignment> getPlaceTypeAssignments() {
@@ -355,7 +355,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a place type assignments to the place.
-	 * 
+	 *
 	 * @param placeTypeAssignment the place type assignment to add. Must not be <code>null</code>.
 	 */
 	public void addPlaceTypeAssignment(final PlaceTypeAssignment placeTypeAssignment) {
@@ -371,7 +371,7 @@ public class Place extends AbstractEntity {
 	 * <p>
 	 * <b>Note:</b> the place assignment's attribute linking to this place is not removed due to JPA provided
 	 * orphanRemoval!
-	 * 
+	 *
 	 * @param placeTypeAssignment the place type assignment to remove. Must not be <code>null</code>.
 	 */
 	public void removePlaceTypeAssignment(final PlaceTypeAssignment placeTypeAssignment) {
@@ -381,7 +381,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a set of place type assignments to the place.
-	 * 
+	 *
 	 * @param placeTypeAssignments the place type assignments to add. Must not be <code>null</code>.
 	 */
 	public void addPlaceTypeAssignments(final Set<PlaceTypeAssignment> placeTypeAssignments) {
@@ -393,7 +393,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Set the place type assignments of the place.
-	 * 
+	 *
 	 * @param placeTypeAssignments the new place type assignments. If <code>null</code>, handled like an empty set.
 	 */
 	public void setPlaceTypeAssignments(final Set<PlaceTypeAssignment> placeTypeAssignments) {
@@ -408,7 +408,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get the place type assignments of a specific type.
-	 * 
+	 *
 	 * @param type the place type to search for.
 	 * @return the place's type assignments of given type.
 	 */
@@ -418,7 +418,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get the place type assignments of a specific type.
-	 * 
+	 *
 	 * @param placeTypeName the name of the place type to search for.
 	 * @return the place's type assignments of given type.
 	 */
@@ -432,7 +432,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get unmodifiable view of all left place relationships.
-	 * 
+	 *
 	 * @return all left place relationships of the place.
 	 */
 	public Set<PlaceRelationship> getLeftPlaceRelationships() {
@@ -441,7 +441,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a left place relationship to the place.
-	 * 
+	 *
 	 * @param leftPlaceRelationship the left place relationship to add. Must not be <code>null</code>.
 	 */
 	public void addLeftPlaceRelationship(final PlaceRelationship leftPlaceRelationship) {
@@ -457,7 +457,7 @@ public class Place extends AbstractEntity {
 	 * <p>
 	 * <b>Note:</b> the place relationship's attribute linking to this place is not removed due to JPA provided
 	 * orphanRemoval!
-	 * 
+	 *
 	 * @param leftPlaceRelationship the left place relationship to remove. Must not be <code>null</code>.
 	 */
 	public void removeLeftPlaceRelationship(final PlaceRelationship leftPlaceRelationship) {
@@ -467,7 +467,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a set of left place relationships to the place.
-	 * 
+	 *
 	 * @param leftPlaceRelationships the left place relationships to add. Must not be <code>null</code>.
 	 */
 	public void addLeftPlaceRelationships(final Set<PlaceRelationship> leftPlaceRelationships) {
@@ -479,7 +479,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Set the left place relationships of the place.
-	 * 
+	 *
 	 * @param leftPlaceRelationships the new left place relationships. If <code>null</code>, handled like an empty set.
 	 */
 	public void setLeftPlaceRelationships(final Set<PlaceRelationship> leftPlaceRelationships) {
@@ -494,7 +494,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Get unmodifiable view of all right place relationships.
-	 * 
+	 *
 	 * @return all right place relationships of the place.
 	 */
 	public Set<PlaceRelationship> getRightPlaceRelationships() {
@@ -503,7 +503,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a right place relationship to the place.
-	 * 
+	 *
 	 * @param rightPlaceRelationship the right place relationship to add. Must not be <code>null</code>.
 	 */
 	public void addRightPlaceRelationship(final PlaceRelationship rightPlaceRelationship) {
@@ -519,7 +519,7 @@ public class Place extends AbstractEntity {
 	 * <p>
 	 * <b>Note:</b> the place relationship's attribute linking to this place is not removed due to JPA provided
 	 * orphanRemoval!
-	 * 
+	 *
 	 * @param rightPlaceRelationship the right place relationship to remove. Must not be <code>null</code>.
 	 */
 	public void removeRightPlaceRelationship(final PlaceRelationship rightPlaceRelationship) {
@@ -529,7 +529,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Add a set of right place relationships to the place.
-	 * 
+	 *
 	 * @param rightPlaceRelationships the right place relationships to add. Must not be <code>null</code>.
 	 */
 	public void addRightPlaceRelationships(final Set<PlaceRelationship> rightPlaceRelationships) {
@@ -541,7 +541,7 @@ public class Place extends AbstractEntity {
 
 	/**
 	 * Set the right place relationships of the place.
-	 * 
+	 *
 	 * @param rightPlaceRelationships the new right place relationships. If <code>null</code>, handled like an empty
 	 *            set.
 	 */

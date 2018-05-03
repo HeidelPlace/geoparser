@@ -70,8 +70,8 @@ public class HighestPopulationDisambiguator extends ToponymDisambiguator {
 		return output;
 	}
 
-	private static Place getPlaceWithHighestPopulation(final List<Place> linkedPlaces) {
-		Place highestPopulatedPlace = linkedPlaces.get(0);
+	public static Place getPlaceWithHighestPopulation(final List<Place> linkedPlaces) {
+		Place highestPopulatedPlace = null;
 		int highestPopulation = 0;
 
 		for (final Place place : linkedPlaces) {
@@ -81,7 +81,9 @@ public class HighestPopulationDisambiguator extends ToponymDisambiguator {
 				highestPopulation = placePopulation;
 			}
 		}
-
+		if (highestPopulatedPlace == null){
+			highestPopulatedPlace = linkedPlaces.get(0);
+		}
 		return highestPopulatedPlace;
 	}
 
@@ -92,7 +94,12 @@ public class HighestPopulationDisambiguator extends ToponymDisambiguator {
 
 		for (final PlaceProperty populationNumber : populationNumbers) {
 			if (populationNumber.getValue() != null) {
-				populationValue = Integer.parseInt(populationNumber.getValue());
+				try {
+					populationValue = Integer.parseInt(populationNumber.getValue());
+				}
+				catch (Exception e){
+					populationValue = Integer.MAX_VALUE;
+				}
 				// good for now. could do more fancy stuff, if multiple population numbers are available...
 				break;
 			}
